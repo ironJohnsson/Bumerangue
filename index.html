@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bumerangue - Prontos Artesanais</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Roboto', sans-serif; background-color: #fffaf0; color: #333; }
+    header { background-color: #2e8b57; display: flex; justify-content: space-between; align-items: center; padding: 10px 30px; color: #fff; }
+    header img { height: 60px; }
+    nav ul { display: flex; list-style: none; gap: 20px; }
+    nav a { text-decoration: none; color: #fff; font-weight: bold; transition: color 0.3s; }
+    nav a:hover { color: #ffeb3b; }
+    .banner { background: url('https://images.unsplash.com/photo-1608219959303-0b34a8f5c27c') center/cover; height: 300px; display: flex; align-items: center; justify-content: center; color: white; text-shadow: 2px 2px 8px #000; }
+    .banner h1 { font-size: 2.5em; background-color: rgba(0,0,0,0.5); padding: 10px 20px; border-radius: 10px; }
+    main { padding: 40px 20px; max-width: 1200px; margin: auto; }
+    .catalogo { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; }
+    .produto { background-color: #f8f8f8; border-radius: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); overflow: hidden; transition: transform 0.2s ease; }
+    .produto:hover { transform: scale(1.03); }
+    .produto img { width: 100%; height: 200px; object-fit: cover; }
+    .produto h3 { text-align: center; margin: 15px 0 5px 0; color: #2e8b57; }
+    .produto p { text-align: center; color: #666; padding-bottom: 15px; }
+    footer { background-color: #2e8b57; color: #fff; text-align: center; padding: 20px; margin-top: 40px; }
+    footer p { margin-bottom: 5px; }
+    @media (max-width: 600px) { header { flex-direction: column; text-align: center; } nav ul { flex-direction: column; } }
+  </style>
+</head>
+<body>
+  <header>
+    <img src="a8142619-b62f-427e-a3a1-38115b1c3434.png" alt="Logo Bumerangue">
+    <nav>
+      <ul>
+        <li><a href="index.html">Início</a></li>
+        <li><a href="catalogo.html">Catálogo</a></li>
+        <li><a href="sobre.html">Sobre</a></li>
+        <li><a href="contato.html">Contato</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <section class="banner">
+    <h1>Bumerangue - Produtos Artesanais</h1>
+  </section>
+
+  <main>
+    <h2 style="text-align:center; margin-bottom:30px; color:#2e8b57;">Bem-vindo à Bumerangue!</h2>
+    <p style="text-align:center; max-width:800px; margin:auto; font-size:1.1em;">A Bumerangue é uma loja de bebidas artesanais inspirada nas regiões da Mantiqueira e do Sincorá. Nossas criações combinam tradição, sabor e ingredientes de alta qualidade para proporcionar experiências únicas. Explore nosso catálogo e descubra os sabores da serra!</p>
+  </main>
+
+  <footer>
+    <p>&copy; 2025 Bumerangue - Prontos Artesanais</p>
+    <p>Mantiqueira & Sincorá</p>
+  </footer>
+</body>
+</html>
