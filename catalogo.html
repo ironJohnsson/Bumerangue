@@ -285,9 +285,28 @@ function iniciarAdd(index, tipo){
     sizeContext = { index, tipo };
     sizeTitle.textContent = `Escolha o tamanho para ${p.nome}`;
     sizeInfo.textContent = `Estoque disponível: ${p.estoque["Não engarrafado"]} L`;
-    // reset seleção
-    sizeButtons.querySelectorAll('.size-btn').forEach(b=>b.classList.remove('selected'));
+
+    // reset seleção e atualizar disponibilidade dos tamanhos
+    const litros = p.estoque["Não engarrafado"];
+    const litersMap = { "280ml": 0.28, "500ml": 0.5, "750ml": 0.75, "1L": 1 };
+    let algumDisponivel = false;
+
+    sizeButtons.querySelectorAll('.size-btn').forEach(btn=>{
+      const tam = btn.dataset.size;
+      const precisa = litersMap[tam];
+      btn.classList.remove('selected');
+      if(litros >= precisa && litros > 0){
+        btn.disabled = false;
+        btn.style.opacity = "1";
+        algumDisponivel = true;
+      } else {
+        btn.disabled = true;
+        btn.style.opacity = "0.5";
+      }
+    });
+
     selectedSize = null;
+    document.getElementById('confirmSize').style.display = algumDisponivel ? 'inline-block' : 'none';
     sizeModal.classList.add('show');
   } else {
     // adicionar unidade de embalagem engarrafada
