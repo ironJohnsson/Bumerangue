@@ -54,8 +54,29 @@
 
   /* seleção de tamanho dentro do modal - estilo moderno */
   .sizes{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:10px}
-  .size-btn{padding:10px 14px;border-radius:10px;border:2px solid rgba(0,0,0,.06);cursor:pointer;background:#fff;font-weight:700}
-  .size-btn.selected{background:var(--verde);color:#fff;border-color:var(--verde)}
+  .size-btn{
+  padding:10px 14px;
+  border-radius:10px;
+  border:2px solid rgba(0,0,0,.06);
+  cursor:pointer;
+  background:#fff;
+  font-weight:700;
+  color:#000;
+  transition:all .2s ease;
+}
+.size-btn:hover:not(:disabled){
+  background:#f0f0f0;
+}
+.size-btn.selected{
+  background:var(--verde);
+  color:#fff;
+  border-color:var(--verde);
+}
+.size-btn:disabled{
+  opacity:0.5;
+  cursor:not-allowed;
+  color:#666; 
+}
 
   /* toast / feedback moderno */
   .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:32px;background:#111;color:#fff;padding:12px 18px;border-radius:10px;box-shadow:0 6px 20px rgba(0,0,0,.3);z-index:1200;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s}
