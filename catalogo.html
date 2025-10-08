@@ -9,8 +9,26 @@ body { font-family: 'Roboto', sans-serif; background-color: #fffaf0; color: #333
 header, footer { background-color: #2e8b57; color: #fff; padding: 15px; text-align: center; }
 nav a { margin: 0 15px; color: #fff; text-decoration: none; font-weight: bold; }
 nav a:hover { color: #ffeb3b; }
-.catalogo { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; padding: 30px; }
-.produto { background: #f8f8f8; border-radius: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); overflow: hidden; text-align: center; cursor:pointer; transition: transform .2s; }
+
+/* Catálogo com exatamente 3 produtos por linha */
+.catalogo { 
+  display: grid; 
+  grid-template-columns: repeat(3, 1fr); 
+  gap: 20px; 
+  padding: 30px; 
+}
+@media (max-width: 900px) { .catalogo { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 600px) { .catalogo { grid-template-columns: 1fr; } }
+
+.produto { 
+  background: #f8f8f8; 
+  border-radius: 10px; 
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1); 
+  overflow: hidden; 
+  text-align: center; 
+  cursor:pointer; 
+  transition: transform .2s; 
+}
 .produto:hover { transform: scale(1.03); }
 .produto img { width: 100%; height: 200px; object-fit: cover; }
 .produto h3 { color: #2e8b57; margin: 10px 0; }
@@ -31,16 +49,26 @@ nav a:hover { color: #ffeb3b; }
 @keyframes fadeIn { from {opacity: 0; transform: translateY(-10px);} to {opacity:1; transform: translateY(0);} }
 .close { position: absolute; right: 15px; top: 10px; font-size: 22px; cursor: pointer; color: #2e8b57; font-weight: bold; }
 .close:hover { color: #256b46; }
+
+/* Tabela dentro do modal */
 table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-th, td { padding: 8px; border-bottom: 1px solid #ddd; }
+th, td { padding: 8px; text-align: center; border-bottom: 1px solid #ddd; vertical-align: middle; }
 th { background-color: #2e8b57; color: white; }
 td { color: #444; }
 .status-indisponivel { color: red; font-weight: bold; }
 .status-disponivel { color: green; font-weight: bold; }
 
-/* Tabela de preços fixos */
-#tabelaPrecos { max-width: 600px; margin: 30px auto; background: #f8f8f8; border-radius: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); padding: 15px; }
+/* Tabela de preços fixa */
+#tabelaPrecos { 
+  max-width: 600px; 
+  margin: 30px auto; 
+  background: #f8f8f8; 
+  border-radius: 10px; 
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1); 
+  padding: 15px; 
+}
 #tabelaPrecos h3 { color: #2e8b57; text-align: center; margin-bottom: 10px; }
+
 </style>
 </head>
 <body>
@@ -96,14 +124,6 @@ td { color: #444; }
 </div>
 
 <script>
-// Preços fixos (para referência futura se quiser alterar)
-const precosPadrao = {
-  "280ml": 30,
-  "500ml": 55,
-  "750ml": 80,
-  "1L": 100
-};
-
 // Produtos com estoque
 const produtos = [
   {
@@ -135,7 +155,7 @@ const produtos = [
     descricao: "a escrever.",
     imagem: "https://images.unsplash.com/photo-1625470700395-8a5e2f34b6cf",
     estoque: { "280ml": 0, "500ml": 1, "750ml": 0, "1L": 0, "Não engarrafado": 0 }
-},
+  },
   {
     nome: "Licor de Jenipapo",
     descricao: "a escrever.",
@@ -184,18 +204,18 @@ const produtos = [
     imagem: "https://images.unsplash.com/photo-1625470700395-8a5e2f34b6cf",
     estoque: { "280ml": 0, "500ml": 0, "750ml": 0, "1L": 0, "Não engarrafado": 2.5 }
   },
-    {
-        nome: "Cachaça Envelhecida",
-        descricao: "a escrever.",
-        imagem: "https://images.unsplash.com/photo-1625470700395-8a5e2f34b6cf",
-        estoque: { "280ml": 0, "500ml": 0, "750ml": 0, "1L": 0, "Não engarrafado": 26 }
-    },
-    {
-        nome: "Cachaça Branca",
-        descricao: "a escrever.",
-        imagem: "https://images.unsplash.com/photo-1625470700395-8a5e2f34b6cf",
-        estoque: { "280ml": 0, "500ml": 0, "750ml": 0, "1L": 0, "Não engarrafado": 1 }
-    }
+  {
+    nome: "Cachaça Envelhecida",
+    descricao: "a escrever.",
+    imagem: "https://images.unsplash.com/photo-1625470700395-8a5e2f34b6cf",
+    estoque: { "280ml": 0, "500ml": 0, "750ml": 0, "1L": 0, "Não engarrafado": 26 }
+  },
+  {
+    nome: "Cachaça Branca",
+    descricao: "a escrever.",
+    imagem: "https://images.unsplash.com/photo-1625470700395-8a5e2f34b6cf",
+    estoque: { "280ml": 0, "500ml": 0, "750ml": 0, "1L": 0, "Não engarrafado": 1 }
+  }
 ];
 
 // Monta o catálogo
@@ -225,13 +245,7 @@ function abrirModal(index) {
   for (let tamanho in prod.estoque) {
     const qtd = prod.estoque[tamanho];
     const status = qtd > 0 ? "status-disponivel" : "status-indisponivel";
-    let displayQtd;
-    if (qtd > 0) {
-      // Se for 'Não engarrafado' mostramos a quantidade seguida de ' L'
-      displayQtd = (tamanho === "Não engarrafado") ? `${qtd} L` : qtd;
-    } else {
-      displayQtd = "Indisponível";
-    }
+    const displayQtd = qtd > 0 ? (tamanho === "Não engarrafado" ? `${qtd} L` : qtd) : "Indisponível";
     const linha = `
       <tr>
         <td>${tamanho}</td>
