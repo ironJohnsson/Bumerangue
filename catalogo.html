@@ -10,7 +10,6 @@ header, footer { background-color: #2e8b57; color: #fff; padding: 15px; text-ali
 nav a { margin: 0 15px; color: #fff; text-decoration: none; font-weight: bold; }
 nav a:hover { color: #ffeb3b; }
 
-/* Catálogo com exatamente 3 produtos por linha */
 .catalogo { 
   display: grid; 
   grid-template-columns: repeat(3, 1fr); 
@@ -34,7 +33,6 @@ nav a:hover { color: #ffeb3b; }
 .produto h3 { color: #2e8b57; margin: 10px 0; }
 .produto p { padding: 0 10px 15px; color: #666; }
 
-/* Modal */
 .modal {
   display: none; position: fixed; z-index: 1000;
   left: 0; top: 0; width: 100%; height: 100%;
@@ -50,7 +48,6 @@ nav a:hover { color: #ffeb3b; }
 .close { position: absolute; right: 15px; top: 10px; font-size: 22px; cursor: pointer; color: #2e8b57; font-weight: bold; }
 .close:hover { color: #256b46; }
 
-/* Tabela dentro do modal */
 table { width: 100%; border-collapse: collapse; margin-top: 10px; }
 th, td { padding: 8px; text-align: center; border-bottom: 1px solid #ddd; vertical-align: middle; }
 th { background-color: #2e8b57; color: white; }
@@ -58,7 +55,6 @@ td { color: #444; }
 .status-indisponivel { color: red; font-weight: bold; }
 .status-disponivel { color: green; font-weight: bold; }
 
-/* Tabela de preços fixa */
 #tabelaPrecos { 
   max-width: 600px; 
   margin: 30px auto; 
@@ -69,6 +65,18 @@ td { color: #444; }
 }
 #tabelaPrecos h3 { color: #2e8b57; text-align: center; margin-bottom: 10px; }
 
+button {
+  background-color: #2e8b57; color: white; border: none;
+  padding: 5px 10px; border-radius: 5px; cursor: pointer;
+}
+button:hover { background-color: #256b46; }
+
+#carrinhoBtn {
+  position: fixed; bottom: 20px; right: 20px;
+  background-color: #2e8b57; color: white; border: none;
+  padding: 15px; border-radius: 50%; font-size: 1.2em; cursor: pointer;
+  box-shadow: 0 3px 6px rgba(0,0,0,0.3);
+}
 </style>
 </head>
 <body>
@@ -85,13 +93,10 @@ td { color: #444; }
 <main>
 <h2 style="text-align:center; margin:20px 0; color:#2e8b57;">Nossas Bebidas</h2>
 
-<!-- Tabela de preços padrão -->
 <div id="tabelaPrecos">
   <h3>Tabela de Preços (padrão para todos os sabores)</h3>
   <table>
-    <thead>
-      <tr><th>Tamanho</th><th>Preço</th></tr>
-    </thead>
+    <thead><tr><th>Tamanho</th><th>Preço</th></tr></thead>
     <tbody>
       <tr><td>280ml</td><td>R$ 30,00</td></tr>
       <tr><td>500ml</td><td>R$ 55,00</td></tr>
@@ -101,7 +106,6 @@ td { color: #444; }
   </table>
 </div>
 
-<!-- Catálogo -->
 <div class="catalogo" id="catalogo"></div>
 </main>
 
@@ -109,155 +113,145 @@ td { color: #444; }
 <p>&copy; 2025 Bumerangue - Bebidas Artesanais</p>
 </footer>
 
-<!-- Modal -->
+<!-- Modal de produto -->
 <div id="produtoModal" class="modal">
   <div class="modal-content">
     <span class="close">&times;</span>
     <h2 id="modalNome"></h2>
     <table>
-      <thead>
-        <tr><th>Tamanho</th><th>Qtde</th></tr>
-      </thead>
+      <thead><tr><th>Tamanho</th><th>Qtde</th><th>Ação</th></tr></thead>
       <tbody id="modalTabela"></tbody>
     </table>
   </div>
 </div>
 
+<!-- Modal do carrinho -->
+<div id="carrinhoModal" class="modal">
+  <div class="modal-content">
+    <span class="close" id="closeCarrinho">&times;</span>
+    <h2>Seu Carrinho</h2>
+    <div id="itensCarrinho"></div>
+    <p id="totalCarrinho" style="font-weight:bold; margin-top:10px;"></p>
+    <form id="formPedido" action="https://formspree.io/f/xrbyajaa" method="POST">
+      <input type="hidden" name="pedido" id="pedidoInput">
+      <input type="text" name="nome" placeholder="Seu nome" required style="width:100%;margin:8px 0;padding:8px;">
+      <input type="email" name="email" placeholder="Seu e-mail" required style="width:100%;margin:8px 0;padding:8px;">
+      <button type="submit" style="width:100%;padding:10px;">Finalizar Pedido</button>
+    </form>
+  </div>
+</div>
+
+<button id="carrinhoBtn">🛒</button>
+
 <script>
-// Produtos com estoque
-const produtos = [
-  {
-    nome: "Cachaça com Mel",
-    descricao: "Doce, suave e aromática.",
-    imagem: "https://images.unsplash.com/photo-1604335399105-59a3b47b11b6",
-    estoque: { "280ml": 0, "500ml": 0, "750ml": 0, "1L": 0, "Não engarrafado": 0 }
-  },
-  {
-    nome: "Licor de Paçoca de Amendoim",
-    descricao: "a escrever.",
-    imagem: "https://images.unsplash.com/photo-1623851373299-31aefc94c4b5",
-    estoque: { "280ml": 0, "500ml": 0, "750ml": 0, "1L": 0, "Não engarrafado": 8 }
-  },
-  {
-    nome: "Licor de Doce de Leite",
-    descricao: "a escrever.",
-    imagem: "https://images.unsplash.com/photo-1625470700395-8a5e2f34b6cf",
-    estoque: { "280ml": 5, "500ml": 3, "750ml": 0, "1L": 0, "Não engarrafado": 0 }
-  },
-  {
-    nome: "Licor de Biri-Biri",
-    descricao: "a escrever.",
-    imagem: "https://images.unsplash.com/photo-1625470700395-8a5e2f34b6cf",
-    estoque: { "280ml": 0, "500ml": 0, "750ml": 0, "1L": 0, "Não engarrafado": 0 }
-  },
-  {
-    nome: "Fireball",
-    descricao: "a escrever.",
-    imagem: "https://images.unsplash.com/photo-1625470700395-8a5e2f34b6cf",
-    estoque: { "280ml": 0, "500ml": 1, "750ml": 0, "1L": 0, "Não engarrafado": 0 }
-  },
-  {
-    nome: "Licor de Jenipapo",
-    descricao: "a escrever.",
-    imagem: "https://images.unsplash.com/photo-1625470700395-8a5e2f34b6cf",
-    estoque: { "280ml": 0, "500ml": 0, "750ml": 0, "1L": 0, "Não engarrafado": 0 }
-  },
-  {
-    nome: "Cachaça de Nespera",
-    descricao: "a escrever.",
-    imagem: "https://images.unsplash.com/photo-1625470700395-8a5e2f34b6cf",
-    estoque: { "280ml": 0, "500ml": 0, "750ml": 0, "1L": 0, "Não engarrafado": 0 }
-  },
-  {
-    nome: "Cachaça de Manjericão",
-    descricao: "a escrever.",
-    imagem: "https://images.unsplash.com/photo-1625470700395-8a5e2f34b6cf",
-    estoque: { "280ml": 0, "500ml": 0, "750ml": 0, "1L": 0, "Não engarrafado": 0 }
-  },
-  {
-    nome: "Cachaça de Menta com Anis",
-    descricao: "a escrever.",
-    imagem: "https://images.unsplash.com/photo-1625470700395-8a5e2f34b6cf",
-    estoque: { "280ml": 0, "500ml": 0, "750ml": 0, "1L": 0, "Não engarrafado": 3.5 }
-  },
-  {
-    nome: "Kahlua (Licor de Café)",
-    descricao: "a escrever.",
-    imagem: "https://images.unsplash.com/photo-1625470700395-8a5e2f34b6cf",
-    estoque: { "280ml": 0, "500ml": 0, "750ml": 0, "1L": 0, "Não engarrafado": 0 }
-  },
-  {
-    nome: "Cachaça de Café com Laranja",
-    descricao: "a escrever.",
-    imagem: "https://images.unsplash.com/photo-1625470700395-8a5e2f34b6cf",
-    estoque: { "280ml": 0, "500ml": 0, "750ml": 0, "1L": 0, "Não engarrafado": 0 }
-  },
-  {
-    nome: "Cointreau (Licor de Laranja)",
-    descricao: "a escrever.",
-    imagem: "https://images.unsplash.com/photo-1625470700395-8a5e2f34b6cf",
-    estoque: { "280ml": 0, "500ml": 0, "750ml": 0, "1L": 0, "Não engarrafado": 0 }
-  },
-  {
-    nome: "Cachaça de Maracujá com Mel",
-    descricao: "a escrever.",
-    imagem: "https://images.unsplash.com/photo-1625470700395-8a5e2f34b6cf",
-    estoque: { "280ml": 0, "500ml": 0, "750ml": 0, "1L": 0, "Não engarrafado": 2.5 }
-  },
-  {
-    nome: "Cachaça Envelhecida",
-    descricao: "a escrever.",
-    imagem: "https://images.unsplash.com/photo-1625470700395-8a5e2f34b6cf",
-    estoque: { "280ml": 0, "500ml": 0, "750ml": 0, "1L": 0, "Não engarrafado": 26 }
-  },
-  {
-    nome: "Cachaça Branca",
-    descricao: "a escrever.",
-    imagem: "https://images.unsplash.com/photo-1625470700395-8a5e2f34b6cf",
-    estoque: { "280ml": 0, "500ml": 0, "750ml": 0, "1L": 0, "Não engarrafado": 1 }
-  }
-];
+const produtosBase = [...(JSON.parse(JSON.stringify([
+  {nome:"Cachaça com Mel",descricao:"Doce, suave e aromática.",imagem:"https://images.unsplash.com/photo-1604335399105-59a3b47b11b6",estoque:{"280ml":0,"500ml":0,"750ml":0,"1L":0,"Não engarrafado":0}},
+  {nome:"Licor de Paçoca de Amendoim",descricao:"a escrever.",imagem:"https://images.unsplash.com/photo-1623851373299-31aefc94c4b5",estoque:{"280ml":0,"500ml":0,"750ml":0,"1L":0,"Não engarrafado":8}},
+  {nome:"Licor de Doce de Leite",descricao:"a escrever.",imagem:"https://images.unsplash.com/photo-1625470700395-8a5e2f34b6cf",estoque:{"280ml":5,"500ml":3,"750ml":0,"1L":0,"Não engarrafado":0}},
+  {nome:"Licor de Biri-Biri",descricao:"a escrever.",imagem:"https://images.unsplash.com/photo-1625470700395-8a5e2f34b6cf",estoque:{"280ml":0,"500ml":0,"750ml":0,"1L":0,"Não engarrafado":0}},
+  {nome:"Fireball",descricao:"a escrever.",imagem:"https://images.unsplash.com/photo-1625470700395-8a5e2f34b6cf",estoque:{"280ml":0,"500ml":1,"750ml":0,"1L":0,"Não engarrafado":0}},
+  {nome:"Licor de Jenipapo",descricao:"a escrever.",imagem:"https://images.unsplash.com/photo-1625470700395-8a5e2f34b6cf",estoque:{"280ml":0,"500ml":0,"750ml":0,"1L":0,"Não engarrafado":0}},
+  {nome:"Cachaça de Nespera",descricao:"a escrever.",imagem:"https://images.unsplash.com/photo-1625470700395-8a5e2f34b6cf",estoque:{"280ml":0,"500ml":0,"750ml":0,"1L":0,"Não engarrafado":0}},
+  {nome:"Cachaça de Manjericão",descricao:"a escrever.",imagem:"https://images.unsplash.com/photo-1625470700395-8a5e2f34b6cf",estoque:{"280ml":0,"500ml":0,"750ml":0,"1L":0,"Não engarrafado":0}},
+  {nome:"Cachaça de Menta com Anis",descricao:"a escrever.",imagem:"https://images.unsplash.com/photo-1625470700395-8a5e2f34b6cf",estoque:{"280ml":0,"500ml":0,"750ml":0,"1L":0,"Não engarrafado":3.5}},
+  {nome:"Kahlua (Licor de Café)",descricao:"a escrever.",imagem:"https://images.unsplash.com/photo-1625470700395-8a5e2f34b6cf",estoque:{"280ml":0,"500ml":0,"750ml":0,"1L":0,"Não engarrafado":0}},
+  {nome:"Cachaça de Café com Laranja",descricao:"a escrever.",imagem:"https://images.unsplash.com/photo-1625470700395-8a5e2f34b6cf",estoque:{"280ml":0,"500ml":0,"750ml":0,"1L":0,"Não engarrafado":0}},
+  {nome:"Cointreau (Licor de Laranja)",descricao:"a escrever.",imagem:"https://images.unsplash.com/photo-1625470700395-8a5e2f34b6cf",estoque:{"280ml":0,"500ml":0,"750ml":0,"1L":0,"Não engarrafado":0}},
+  {nome:"Cachaça de Maracujá com Mel",descricao:"a escrever.",imagem:"https://images.unsplash.com/photo-1625470700395-8a5e2f34b6cf",estoque:{"280ml":0,"500ml":0,"750ml":0,"1L":0,"Não engarrafado":2.5}},
+  {nome:"Cachaça Envelhecida",descricao:"a escrever.",imagem:"https://images.unsplash.com/photo-1625470700395-8a5e2f34b6cf",estoque:{"280ml":0,"500ml":0,"750ml":0,"1L":0,"Não engarrafado":26}},
+  {nome:"Cachaça Branca",descricao:"a escrever.",imagem:"https://images.unsplash.com/photo-1625470700395-8a5e2f34b6cf",estoque:{"280ml":0,"500ml":0,"750ml":0,"1L":0,"Não engarrafado":1}}
+])))];
+let produtos = JSON.parse(localStorage.getItem("produtosBumerangue")) || produtosBase;
+let carrinho = JSON.parse(localStorage.getItem("carrinhoBumerangue")) || [];
 
-// Monta o catálogo
 const catalogoDiv = document.getElementById("catalogo");
-produtos.forEach((prod, index) => {
-  const item = document.createElement("div");
-  item.className = "produto";
-  item.innerHTML = `
-    <img src="${prod.imagem}" alt="${prod.nome}">
-    <h3>${prod.nome}</h3>
-    <p>${prod.descricao}</p>
-  `;
-  item.addEventListener("click", () => abrirModal(index));
-  catalogoDiv.appendChild(item);
-});
+function renderCatalogo(){
+  catalogoDiv.innerHTML="";
+  produtos.forEach((p,i)=>{
+    const el=document.createElement("div");
+    el.className="produto";
+    el.innerHTML=`<img src="${p.imagem}"><h3>${p.nome}</h3><p>${p.descricao}</p>`;
+    el.onclick=()=>abrirModal(i);
+    catalogoDiv.appendChild(el);
+  });
+}
+renderCatalogo();
 
-// Modal
-const modal = document.getElementById("produtoModal");
-const modalNome = document.getElementById("modalNome");
-const modalTabela = document.getElementById("modalTabela");
-const closeBtn = document.querySelector(".close");
+const modal=document.getElementById("produtoModal");
+const modalNome=document.getElementById("modalNome");
+const modalTabela=document.getElementById("modalTabela");
+const closeBtn=document.querySelector(".close");
+closeBtn.onclick=()=>modal.style.display="none";
+window.onclick=e=>{if(e.target==modal)modal.style.display="none";};
 
-function abrirModal(index) {
-  const prod = produtos[index];
-  modalNome.textContent = prod.nome;
-  modalTabela.innerHTML = "";
-  for (let tamanho in prod.estoque) {
-    const qtd = prod.estoque[tamanho];
-    const status = qtd > 0 ? "status-disponivel" : "status-indisponivel";
-    const displayQtd = qtd > 0 ? (tamanho === "Não engarrafado" ? `${qtd} L` : qtd) : "Indisponível";
-    const linha = `
-      <tr>
-        <td>${tamanho}</td>
-        <td class="${status}">${displayQtd}</td>
-      </tr>`;
-    modalTabela.insertAdjacentHTML("beforeend", linha);
+function abrirModal(i){
+  const prod=produtos[i];
+  modalNome.textContent=prod.nome;
+  modalTabela.innerHTML="";
+  for(let t in prod.estoque){
+    const q=prod.estoque[t];
+    const disp=q>0;
+    const status=disp?"status-disponivel":"status-indisponivel";
+    const texto=disp?(t==="Não engarrafado"?`${q} L`:q):"Indisponível";
+    let btn="";
+    if(disp||t==="Não engarrafado"){
+      btn=`<button onclick="addCarrinho(${i},'${t}')">Adicionar</button>`;
+    }
+    modalTabela.insertAdjacentHTML("beforeend",
+      `<tr><td>${t}</td><td class="${status}">${texto}</td><td>${btn}</td></tr>`);
   }
-  modal.style.display = "flex";
+  modal.style.display="flex";
 }
 
-closeBtn.onclick = () => modal.style.display = "none";
-window.onclick = e => { if (e.target == modal) modal.style.display = "none"; };
+function preco(t){return{"280ml":30,"500ml":55,"750ml":80,"1L":100}[t]||0;}
+
+function addCarrinho(i,t){
+  const p=produtos[i];
+  if(t==="Não engarrafado"){
+    const escolhido=prompt("Escolha o tamanho (280ml, 500ml, 750ml, 1L):");
+    if(!["280ml","500ml","750ml","1L"].includes(escolhido))return alert("Tamanho inválido!");
+    carrinho.push({nome:p.nome,tamanho:escolhido,preco:preco(escolhido),index:i});
+  }else{
+    if(p.estoque[t]<=0)return alert("Indisponível!");
+    p.estoque[t]--; 
+    carrinho.push({nome:p.nome,tamanho:t,preco:preco(t),index:i});
+  }
+  salvar();
+  alert("Adicionado ao carrinho!");
+}
+
+const carrinhoModal=document.getElementById("carrinhoModal");
+document.getElementById("closeCarrinho").onclick=()=>carrinhoModal.style.display="none";
+document.getElementById("carrinhoBtn").onclick=()=>abrirCarrinho();
+
+function abrirCarrinho(){
+  const itens=document.getElementById("itensCarrinho");
+  const totalDiv=document.getElementById("totalCarrinho");
+  itens.innerHTML="";
+  if(carrinho.length===0){itens.innerHTML="<p>Carrinho vazio.</p>";totalDiv.textContent="";return carrinhoModal.style.display="flex";}
+  let total=0;
+  carrinho.forEach((c,i)=>{total+=c.preco;itens.insertAdjacentHTML("beforeend",`<p>${c.nome} (${c.tamanho}) - R$${c.preco},00 <button style='background:red' onclick='remover(${i})'>X</button></p>`);});
+  totalDiv.textContent="Total: R$ "+total+",00";
+  carrinhoModal.style.display="flex";
+}
+
+function remover(i){
+  const c=carrinho[i];
+  if(c.tamanho!=="Não engarrafado")produtos[c.index].estoque[c.tamanho]++;
+  carrinho.splice(i,1);salvar();abrirCarrinho();
+}
+
+document.getElementById("formPedido").onsubmit=function(){
+  const resumo=carrinho.map(c=>`${c.nome} (${c.tamanho}) - R$${c.preco}`).join("\\n");
+  document.getElementById("pedidoInput").value=resumo;
+  carrinho=[];salvar();
+  alert("Pedido enviado e estoque atualizado!");
+};
+
+function salvar(){
+  localStorage.setItem("produtosBumerangue",JSON.stringify(produtos));
+  localStorage.setItem("carrinhoBumerangue",JSON.stringify(carrinho));
+}
 </script>
 </body>
 </html>
