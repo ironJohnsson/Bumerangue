@@ -433,13 +433,23 @@ limparCarrinhoBtn.addEventListener('click', ()=>{
 
 /* ---------- submissão do pedido (Formspree) ---------- */
 document.getElementById('formPedido').addEventListener('submit', function(e){
-  if(carrinho.length === 0){ e.preventDefault(); showToast("Carrinho vazio — adicione itens antes de finalizar"); return; }
+  if(carrinho.length === 0){
+    e.preventDefault();
+    showToast("Carrinho vazio — adicione itens antes de finalizar");
+    return;
+  }
+
+  // Gera o resumo do pedido
   const resumo = carrinho.map(c => `${c.nome} (${c.tamanho}) - R$${c.preco},00`).join("\n");
   pedidoInput.value = resumo;
-  // Observação: Formspree fará o POST e redirecionará; antes de enviar, os estoques já foram atualizados localmente quando os itens foram adicionados.
-  // Limpamos o carrinho local apenas após submissão bem-sucedida - mas Formspree redireciona a página. Para simples UX, limpamos localStorage aqui:
-  setTimeout(()=>{ carrinho = []; salvar(); showToast("Pedido enviado! Obrigado."); }, 300);
-  // deixa o envio prosseguir para Formspree
+
+  setTimeout(()=>{
+    carrinho = [];
+    salvar();
+    carrinhoModal.classList.remove('show');  // fecha o modal
+    document.getElementById('formPedido').reset(); // limpa o formulário
+    showToast("Pedido enviado! Obrigado.");
+  }, 400);
 });
 
 /* ---------- confirmação em UI (modal leve) ---------- */
