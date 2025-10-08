@@ -221,15 +221,24 @@ function abrirModal(i){
   modalTabela.innerHTML = '';
   for(let t in p.estoque){
     const q = p.estoque[t];
-    const disponivel = (t === "Não engarrafado") ? (q > 0) : (q > 0);
-    const statusClass = (disponivel) ? 'status-disponivel' : 'status-indisponivel';
+    const disponivel = q > 0;
+    const statusClass = disponivel ? 'status-disponivel' : 'status-indisponivel';
     const display = disponivel ? (t === "Não engarrafado" ? `${q} L` : q) : 'Indisponível';
-    const btn = (disponivel || t === "Não engarrafado") ? `<button class="small" onclick="iniciarAdd(${i},'${t}')">Adicionar</button>` : '';
+
+    // botão só aparece se há estoque OU (t === "Não engarrafado" e há litros)
+    let btn = '';
+    if (t === "Não engarrafado" && q > 0) {
+      btn = `<button class="small" onclick="iniciarAdd(${i},'${t}')">Adicionar</button>`;
+    } else if (t !== "Não engarrafado" && q > 0) {
+      btn = `<button class="small" onclick="iniciarAdd(${i},'${t}')">Adicionar</button>`;
+    }
+
     modalTabela.insertAdjacentHTML('beforeend',
       `<tr><td>${t}</td><td class="${statusClass}">${display}</td><td>${btn}</td></tr>`);
   }
   produtoModal.classList.add('show');
 }
+
 
 /* ---------- escolher tamanho modal (in-site, botões) ---------- */
 const sizeModal = document.getElementById('sizeSelectModal');
@@ -281,12 +290,16 @@ document.getElementById('confirmSize').addEventListener('click', ()=>{
 function iniciarAdd(index, tipo){
   const p = produtos[index];
   if(tipo === "Não engarrafado"){
-    // abrir modal de seleção de tamanho
+    if(p.estoque["Não engarrafado"] <= 0){
+      showToast("Produto não engarrafado indisponível no momento");
+      return;
+    }
+
     sizeContext = { index, tipo };
     sizeTitle.textContent = `Escolha o tamanho para ${p.nome}`;
     sizeInfo.textContent = `Estoque disponível: ${p.estoque["Não engarrafado"]} L`;
 
-    // reset seleção e atualizar disponibilidade dos tamanhos
+    // atualizar disponibilidade dos botões de tamanho
     const litros = p.estoque["Não engarrafado"];
     const litersMap = { "280ml": 0.28, "500ml": 0.5, "750ml": 0.75, "1L": 1 };
     let algumDisponivel = false;
@@ -295,13 +308,15 @@ function iniciarAdd(index, tipo){
       const tam = btn.dataset.size;
       const precisa = litersMap[tam];
       btn.classList.remove('selected');
-      if(litros >= precisa && litros > 0){
+      if(litros >= precisa){
         btn.disabled = false;
         btn.style.opacity = "1";
+        btn.style.cursor = "pointer";
         algumDisponivel = true;
       } else {
         btn.disabled = true;
-        btn.style.opacity = "0.5";
+        btn.style.opacity = "0.4";
+        btn.style.cursor = "not-allowed";
       }
     });
 
@@ -309,7 +324,6 @@ function iniciarAdd(index, tipo){
     document.getElementById('confirmSize').style.display = algumDisponivel ? 'inline-block' : 'none';
     sizeModal.classList.add('show');
   } else {
-    // adicionar unidade de embalagem engarrafada
     if(p.estoque[tipo] <= 0){ showToast("Indisponível"); return; }
     p.estoque[tipo] = p.estoque[tipo] - 1;
     carrinho.push({ nome: p.nome, tamanho: tipo, preco: preco(tipo), index });
@@ -319,6 +333,7 @@ function iniciarAdd(index, tipo){
     showToast("Adicionado ao carrinho");
   }
 }
+
 
 /* ---------- preços ---------- */
 function preco(t){
