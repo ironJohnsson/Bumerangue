@@ -171,9 +171,17 @@
     <p id="totalCarrinho" style="font-weight:700;margin-top:10px"></p>
 
     <form id="formPedido" action="https://formspree.io/f/xrbyajaa" method="POST">
-      <input type="hidden" name="pedido" id="pedidoInput">
-      <input type="text" name="nome" placeholder="Seu nome" required style="width:100%;margin:8px 0;padding:8px;border-radius:6px;border:1px solid #ddd">
-      <input type="email" name="email" placeholder="Seu e-mail" required style="width:100%;margin:8px 0;padding:8px;border-radius:6px;border:1px solid #ddd">
+  <input type="hidden" name="pedido" id="pedidoInput">
+  <!-- novo campo oculto que envia cópia -->
+  <input type="hidden" name="_cc" id="emailCopia">
+
+  <input type="text" name="nome" placeholder="Seu nome" required
+    style="width:100%;margin:8px 0;padding:8px;border-radius:6px;border:1px solid #ddd">
+
+  <!-- campo de e-mail agora com id para capturar -->
+  <input type="email" name="email" id="emailCliente" placeholder="Seu e-mail" required
+    style="width:100%;margin:8px 0;padding:8px;border-radius:6px;border:1px solid #ddd">
+
       <div style="display:flex;gap:8px;margin-top:10px">
         <button type="submit" style="flex:1">Finalizar Pedido</button>
         <button type="button" id="limparCarrinho" class="ghost" style="flex:1">Limpar</button>
@@ -378,6 +386,11 @@ const itensCarrinhoDiv = document.getElementById('itensCarrinho');
 const totalCarrinhoP = document.getElementById('totalCarrinho');
 const pedidoInput = document.getElementById('pedidoInput');
 const limparCarrinhoBtn = document.getElementById('limparCarrinho');
+const emailInput = document.getElementById('emailCliente');
+const emailCopia = document.getElementById('emailCopia');
+emailInput.addEventListener('input', () => {
+  emailCopia.value = emailInput.value;
+  });
 
 carrinhoBtn.addEventListener('click', abrirCarrinho);
 closeCarrinho.addEventListener('click', ()=> carrinhoModal.classList.remove('show'));
