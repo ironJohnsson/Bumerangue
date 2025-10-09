@@ -1,571 +1,225 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Catálogo - Bumerangue</title>
-<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Catálogo - Produtos Regionais</title>
 <style>
-  :root{
-    --verde:#2e8b57; --verde-esc:#256b46; --fundo:#fffaf0; --card:#f8f8f8;
+  body {
+    font-family: Arial, sans-serif;
+    background-color: #fff7ed;
+    color: #4b3832;
+    margin: 0;
+    padding: 0;
   }
-  *{box-sizing:border-box}
-  body{font-family:"Roboto",sans-serif;background:var(--fundo);color:#333;margin:0}
-  header,footer{background:var(--verde);color:#fff;padding:15px;text-align:center}
-  nav a{margin:0 15px;color:#fff;text-decoration:none;font-weight:700}
-  nav a:hover{color:#ffeb3b}
-
-  .catalogo{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;padding:30px}
-  @media(max-width:900px){.catalogo{grid-template-columns:repeat(2,1fr)}}
-  @media(max-width:600px){.catalogo{grid-template-columns:1fr}}
-
-  .produto{background:var(--card);border-radius:10px;box-shadow:0 2px 6px rgba(0,0,0,.1);overflow:hidden;text-align:center;transition:transform .18s;cursor:pointer}
-  .produto:hover{transform:scale(1.03)}
-  .produto img{width:100%;height:200px;object-fit:cover}
-  .produto h3{color:var(--verde);margin:10px 0}
-  .produto p{padding:0 10px 15px;color:#666}
-
-  #tabelaPrecos{max-width:600px;margin:30px auto;background:var(--card);border-radius:10px;box-shadow:0 2px 6px rgba(0,0,0,.1);padding:15px}
-  #tabelaPrecos h3{color:var(--verde);text-align:center;margin-bottom:10px}
-
-  /* modais e overlays */
-  .modal{display:none;position:fixed;z-index:1100;left:0;top:0;width:100%;height:100%;background:rgba(0,0,0,.45);align-items:center;justify-content:center;padding:20px}
-  .modal.show{display:flex}
-  .modal-card{background:#fff;border-radius:12px;padding:20px;max-width:520px;width:100%;box-shadow:0 12px 30px rgba(0,0,0,.25);position:relative}
-  .modal-sm{max-width:420px}
-  .close{position:absolute;right:14px;top:10px;font-size:20px;color:var(--verde);cursor:pointer;font-weight:700}
-  .close:hover{color:var(--verde-esc)}
-
-  table{width:100%;border-collapse:collapse;margin-top:10px}
-  th,td{padding:8px;text-align:center;border-bottom:1px solid #eee;vertical-align:middle}
-  th{background:var(--verde);color:#fff}
-  .status-indisponivel{color:red;font-weight:700}
-  .status-disponivel{color:green;font-weight:700}
-
-  button{background:var(--verde);color:#fff;border:none;padding:8px 12px;border-radius:8px;cursor:pointer;font-weight:700}
-  button.ghost{background:transparent;color:var(--verde);border:2px solid var(--verde)}
-  button.small{padding:6px 8px;font-size:.9rem;border-radius:6px}
-  button.danger{background:#e04b4b}
-  .flex{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-  .right{display:flex;justify-content:flex-end}
-
-  /* botão carrinho flutuante */
-  #carrinhoBtn{position:fixed;right:20px;bottom:20px;background:var(--verde);color:#fff;border-radius:50%;width:60px;height:60px;border:none;font-size:22px;box-shadow:0 8px 20px rgba(0,0,0,.25);cursor:pointer}
-
-  /* seleção de tamanho dentro do modal - estilo moderno */
-  .sizes{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:10px}
-  .size-btn {
-  padding:10px 14px;
-  border-radius:10px;
-  border:2px solid rgba(0,0,0,.06);
-  cursor:pointer;
-  background:#fff;
-  font-weight:700;
-  color:#000;
-  transition:all .2s ease;
-}
-
-.size-btn:hover:not(:disabled):not(.selected){
-  background:#f0f0f0;
-}
-
-.size-btn.selected {
-  background:var(--verde);
-  color:#fff;
-  border-color:var(--verde);
-  transition:background .2s ease;
-}
-
-/* ✅ Quando está selecionado e o mouse está em cima — verde mais claro */
-.size-btn.selected:hover {
-  background:#3fa76a; /* tom mais claro de verde */
-}
-
-.size-btn:disabled {
-  opacity:0.5;
-  cursor:not-allowed;
-  color:#666;
-}
-
-button.ghost:hover {
-  background: var(--verde);
-  color: #fff;
-  border-color: var(--verde);
-}
-
-  /* toast / feedback moderno */
-  .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:32px;background:#111;color:#fff;padding:12px 18px;border-radius:10px;box-shadow:0 6px 20px rgba(0,0,0,.3);z-index:1200;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s}
-  .toast.show{opacity:1;transform:translateX(-50%) translateY(-6px);pointer-events:auto}
-
-  /* resumo do carrinho itens */
-  #itensCarrinho p{margin:8px 0;padding:8px;border-radius:8px;background:#fafafa;border:1px solid #eee;display:flex;justify-content:space-between;align-items:center}
-  #itensCarrinho .item-left{display:flex;flex-direction:column;align-items:flex-start;gap:4px}
-  .small-muted{font-size:.9rem;color:#666}
+  h1 {
+    text-align: center;
+    background-color: #d4a373;
+    color: white;
+    padding: 20px 0;
+    margin: 0;
+  }
+  #categorias, #subcategorias {
+    text-align: center;
+    margin: 20px;
+  }
+  button {
+    background-color: #d4a373;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    margin: 5px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+  }
+  button:hover {
+    background-color: #b5835a;
+  }
+  .catalogo {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 15px;
+    padding: 20px;
+  }
+  .produto {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    text-align: center;
+    padding: 10px;
+    width: 200px;
+    cursor: pointer;
+    transition: transform 0.2s;
+  }
+  .produto:hover {
+    transform: scale(1.05);
+  }
+  .produto img {
+    width: 100%;
+    border-radius: 10px;
+    height: 180px;
+    object-fit: cover;
+  }
+  /* Modal */
+  .modal {
+    display: none;
+    position: fixed;
+    z-index: 100;
+    padding-top: 50px;
+    left: 0; top: 0;
+    width: 100%; height: 100%;
+    background-color: rgba(0,0,0,0.6);
+  }
+  .modal-content {
+    background-color: white;
+    margin: auto;
+    padding: 20px;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 600px;
+  }
+  .close {
+    color: #888;
+    float: right;
+    font-size: 24px;
+    font-weight: bold;
+    cursor: pointer;
+  }
+  .close:hover { color: black; }
 </style>
 </head>
 <body>
-<header>
-  <h1>Catálogo Bumerangue</h1>
-  <nav>
-    <a href="index.html">Início</a>
-    <a href="catalogo.html">Catálogo</a>
-    <a href="sobre.html">Sobre</a>
-    <a href="contato.html">Contato</a>
-  </nav>
-</header>
 
-<main>
-  <h2 style="text-align:center;margin:20px 0;color:var(--verde)">Nossas Bebidas</h2>
+<h1>Catálogo de Produtos Regionais</h1>
 
-  <div id="tabelaPrecos">
-    <h3>Tabela de Preços (padrão para todos os sabores)</h3>
-    <table>
-      <thead><tr><th>Tamanho</th><th>Preço</th></tr></thead>
-      <tbody>
-        <tr><td>280ml</td><td>R$ 30,00</td></tr>
-        <tr><td>500ml</td><td>R$ 55,00</td></tr>
-        <tr><td>750ml</td><td>R$ 80,00</td></tr>
-        <tr><td>1L</td><td>R$ 100,00</td></tr>
-      </tbody>
-    </table>
-    </div>
-  </div>
+<div id="categorias"></div>
+<div id="subcategorias" style="display:none;"></div>
 
-  <div class="catalogo" id="catalogo"></div>
-</main>
+<div class="catalogo" id="catalogo"></div>
 
-<footer>
-  <p>&copy; 2025 Bumerangue - Bebidas Artesanais</p>
-</footer>
-
-<!-- Modal: produto (lista de tamanhos / adicionar) -->
-<div id="produtoModal" class="modal" aria-hidden="true">
-  <div class="modal-card modal-sm" role="dialog" aria-modal="true">
-    <span class="close" id="closeProduto">&times;</span>
-    <h2 id="modalNome">Produto</h2>
-    <table>
-      <thead><tr><th>Tamanho</th><th>Qtde</th><th>Ação</th></tr></thead>
-      <tbody id="modalTabela"></tbody>
-    </table>
+<!-- Modal -->
+<div id="produtoModal" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="fecharModal()">&times;</span>
+    <h2 id="modalNome"></h2>
+    <img id="modalImagem" src="" alt="" style="width:100%;border-radius:10px;">
+    <p id="modalDescricao"></p>
+    <h3>Estoque disponível:</h3>
+    <ul id="modalEstoque"></ul>
   </div>
 </div>
-
-<!-- Modal: escolher tamanho para 'Não engarrafado' -->
-<div id="sizeSelectModal" class="modal" aria-hidden="true">
-  <div class="modal-card" role="dialog" aria-modal="true">
-    <span class="close" id="closeSize">&times;</span>
-    <h3 id="sizeTitle">Escolha o tamanho</h3>
-    <p class="small-muted" id="sizeInfo">Selecione o tamanho da garrafa</p>
-    <div class="sizes" id="sizeButtons">
-      <button class="size-btn" data-size="280ml">280ml</button>
-      <button class="size-btn" data-size="500ml">500ml</button>
-      <button class="size-btn" data-size="750ml">750ml</button>
-      <button class="size-btn" data-size="1L">1L</button>
-    </div>
-    <div style="margin-top:16px;display:flex;gap:8px;justify-content:center">
-      <button id="confirmSize" class="small">Adicionar</button>
-      <button id="cancelSize" class="ghost small">Cancelar</button>
-    </div>
-  </div>
-</div>
-
-<!-- Modal: carrinho e checkout -->
-<div id="carrinhoModal" class="modal" aria-hidden="true">
-  <div class="modal-card" role="dialog" aria-modal="true">
-    <span class="close" id="closeCarrinho">&times;</span>
-    <h2>Seu Carrinho</h2>
-    <div id="itensCarrinho"></div>
-    <p id="totalCarrinho" style="font-weight:700;margin-top:10px"></p>
-
-    <form id="formPedido" action="https://formspree.io/f/xrbyajaa" method="POST">
-  <input type="hidden" name="pedido" id="pedidoInput">
-  <!-- novo campo oculto que envia cópia -->
-  <input type="hidden" name="_cc" id="emailCopia">
-
-  <input type="text" name="nome" placeholder="Seu nome" required
-    style="width:100%;margin:8px 0;padding:8px;border-radius:6px;border:1px solid #ddd">
-
-  <!-- campo de e-mail agora com id para capturar -->
-  <input type="email" name="email" id="emailCliente" placeholder="Seu e-mail" required
-    style="width:100%;margin:8px 0;padding:8px;border-radius:6px;border:1px solid #ddd">
-
-      <div style="display:flex;gap:8px;margin-top:10px">
-        <button type="submit" style="flex:1">Finalizar Pedido</button>
-        <button type="button" id="limparCarrinho" class="ghost" style="flex:1">Limpar</button>
-      </div>
-    </form>
-  </div>
-</div>
-
-<button id="carrinhoBtn" title="Ver carrinho">🛒</button>
-
-<!-- toast -->
-<div id="toast" class="toast" role="status" aria-live="polite"></div>
-
-<button id="reloadBtn" class="ghost" style="position:fixed;right:100px;bottom:20px;">🔄 Recarregar Estoque</button>
-
 
 <script>
-/* ========== Dados base (CATÁLOGO ORIGINAL) ========== */
-const produtosBase = [
-  { nome: "Cachaça com Mel", descricao: "Doce, suave e aromática.", 
-  imagem: "https://images.unsplash.com/photo-1604335399105-59a3b47b11b6", 
-  estoque: { "280ml": 0, "500ml": 0, "750ml": 0, "1L": 0, "Não engarrafado": 1 } },
-  { nome: "Licor de Paçoca de Amendoim", descricao: "a escrever.", 
-  imagem: "https://images.unsplash.com/photo-1623851373299-31aefc94c4b5", 
-  estoque: { "280ml": 0, "500ml": 0, "750ml": 0, "1L": 0, "Não engarrafado": 0 } },
-  { nome: "Licor de Doce de Leite", descricao: "a escrever.", 
-  imagem: "https://images.unsplash.com/photo-1625470700395-8a5e2f34b6cf", 
-  estoque: { "280ml": 0, "500ml": 0, "750ml": 0, "1L": 0, "Não engarrafado": 0 } },
-  { nome: "Licor de Biri-Biri", descricao: "a escrever.", 
-  imagem: "https://images.unsplash.com/photo-1625470700395-8a5e2f34b6cf", 
-  estoque: { "280ml": 0, "500ml": 0, "750ml": 0, "1L": 0, "Não engarrafado": 0 } },
-  { nome: "Fireball", descricao: "a escrever.", 
-  imagem: "https://images.unsplash.com/photo-1625470700395-8a5e2f34b6cf", 
-  estoque: { "280ml": 0, "500ml": 1, "750ml": 0, "1L": 0, "Não engarrafado": 6.5 } },
-  { nome: "Licor de Jenipapo", descricao: "a escrever.", 
-  imagem: "https://images.unsplash.com/photo-1625470700395-8a5e2f34b6cf", 
-  estoque: { "280ml": 0, "500ml": 0, "750ml": 0, "1L": 0, "Não engarrafado": 0 } },
-  { nome: "Cachaça de Nespera", descricao: "a escrever.", 
-  imagem: "https://images.unsplash.com/photo-1625470700395-8a5e2f34b6cf", 
-  estoque: { "280ml": 0, "500ml": 0, "750ml": 0, "1L": 0, "Não engarrafado": 0 } },
-  { nome: "Cachaça de Manjericão", descricao: "a escrever.", 
-  imagem: "https://images.unsplash.com/photo-1625470700395-8a5e2f34b6cf", 
-  estoque: { "280ml": 0, "500ml": 0, "750ml": 0, "1L": 0, "Não engarrafado": 0 } },
-  { nome: "Cachaça de Menta com Anis", descricao: "a escrever.", 
-  imagem: "https://images.unsplash.com/photo-1625470700395-8a5e2f34b6cf", 
-  estoque: { "280ml": 0, "500ml": 0, "750ml": 0, "1L": 0, "Não engarrafado": 3.5 } },
-  { nome: "Kahlua (Licor de Café)", descricao: "a escrever.", 
-  imagem: "https://images.unsplash.com/photo-1625470700395-8a5e2f34b6cf", 
-  estoque: { "280ml": 0, "500ml": 0, "750ml": 0, "1L": 0, "Não engarrafado": 0 } },
-  { nome: "Cachaça de Café com Laranja", descricao: "a escrever.", 
-  imagem: "https://images.unsplash.com/photo-1625470700395-8a5e2f34b6cf", 
-  estoque: { "280ml": 0, "500ml": 0, "750ml": 0, "1L": 0, "Não engarrafado": 0 } },
-  { nome: "Cointreau (Licor de Laranja)", descricao: "a escrever.", 
-  imagem: "https://images.unsplash.com/photo-1625470700395-8a5e2f34b6cf", 
-  estoque: { "280ml": 0, "500ml": 0, "750ml": 0, "1L": 0, "Não engarrafado": 0 } },
-  { nome: "Cachaça de Maracujá com Mel", descricao: "a escrever.", 
-  imagem: "https://images.unsplash.com/photo-1625470700395-8a5e2f34b6cf", 
-  estoque: { "280ml": 0, "500ml": 0, "750ml": 0, "1L": 0, "Não engarrafado": 2.5 } },
-  { nome: "Cachaça Envelhecida", descricao: "a escrever.", 
-  imagem: "https://images.unsplash.com/photo-1625470700395-8a5e2f34b6cf", 
-  estoque: { "280ml": 0, "500ml": 0, "750ml": 0, "1L": 0, "Não engarrafado": 26 } },
-  { nome: "Cachaça Branca", descricao: "a escrever.", 
-  imagem: "https://images.unsplash.com/photo-1625470700395-8a5e2f34b6cf", 
-  estoque: { "280ml": 0, "500ml": 0, "750ml": 0, "1L": 0, "Não engarrafado": 1 } }
-];
+const sheetId = "SEU_ID_AQUI"; // <-- substitua aqui
+const sheetName = "Página1";
+const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json&tq&sheet=${sheetName}`;
 
-const versaoCatalogo = btoa(JSON.stringify(produtosBase)).slice(0, 20);
+let produtosBase = [];
+let listaAtual = [];
 
-// recupera dados salvos
-let produtos = JSON.parse(localStorage.getItem("produtosBumerangue"));
-let carrinho = JSON.parse(localStorage.getItem("carrinhoBumerangue")) || [];
+async function carregarProdutos() {
+  try {
+    const res = await fetch(url);
+    const text = await res.text();
+    const json = JSON.parse(text.substr(47).slice(0, -2));
+    const rows = json.table.rows.map(r => r.c.map(c => (c ? c.v : "")));
 
-let versaoSalva = localStorage.getItem("versaoCatalogoBumerangue");
+    produtosBase = rows.map(r => ({
+      categoria: r[0],
+      subcategoria: r[1],
+      nome: r[2],
+      descricao: r[3],
+      imagem: r[4],
+      estoque: {
+        "280ml": Number(r[5]) || 0,
+        "500ml": Number(r[6]) || 0,
+        "750ml": Number(r[7]) || 0,
+        "1L": Number(r[8]) || 0,
+        "Não engarrafado": Number(r[9]) || 0
+      }
+    }));
 
-// se não houver dados ou se a versão mudou → recarrega do código
-if (!produtos || versaoSalva !== versaoCatalogo) {
-  produtos = JSON.parse(JSON.stringify(produtosBase));
-  localStorage.setItem("versaoCatalogoBumerangue", versaoCatalogo);
+    renderCategorias();
+  } catch (e) {
+    console.error("Erro ao carregar produtos:", e);
+  }
 }
 
-/* ---------- utilitários ---------- */
-const toasts = document.getElementById('toast');
-function showToast(msg, tempo = 3000){
-  toasts.textContent = msg;
-  toasts.classList.add('show');
-  clearTimeout(window._toastTimer);
-  window._toastTimer = setTimeout(()=> toasts.classList.remove('show'), tempo);
+function renderCategorias() {
+  const catDiv = document.getElementById("categorias");
+  const categorias = [...new Set(produtosBase.map(p => p.categoria))];
+  catDiv.innerHTML = categorias.map(c =>
+    `<button onclick="selecionarCategoria('${c}')">${c}</button>`
+  ).join("");
 }
 
-function salvar(){
-  localStorage.setItem("produtosBumerangue", JSON.stringify(produtos));
-  localStorage.setItem("carrinhoBumerangue", JSON.stringify(carrinho));
+function selecionarCategoria(categoria) {
+  const subDiv = document.getElementById("subcategorias");
+  const subcategorias = [...new Set(produtosBase
+    .filter(p => p.categoria === categoria)
+    .map(p => p.subcategoria)
+    .filter(s => s))];
+
+  subDiv.style.display = "block";
+  subDiv.innerHTML = subcategorias.map(s =>
+    `<button onclick="filtrarProdutos('${categoria}','${s}')">${s}</button>`
+  ).join("");
 }
 
-/* ---------- recarregar estoque ---------- */
-const reloadBtn = document.getElementById("reloadBtn");
-
-reloadBtn.addEventListener("click", () => {
-  renderCatalogo(); // ou a função que redesenha a tabela
-});
-
-// gera uma assinatura única (hash simplificado) do estoque base atual
-function gerarHashEstoque(estoque){
-  return JSON.stringify(estoque).replace(/\s+/g,'');
+function filtrarProdutos(categoria, subcategoria) {
+  listaAtual = produtosBase.filter(
+    p => p.categoria === categoria && p.subcategoria === subcategoria
+  );
+  renderCatalogo(listaAtual);
 }
 
-// salva a hash da última versão base conhecida
-const hashBaseAtual = gerarHashEstoque(produtosBase);
-const hashBaseSalvo = localStorage.getItem("hashBaseBumerangue");
-
-// habilita botão somente se detectou mudança manual no código base
-if(hashBaseAtual !== hashBaseSalvo){
-  reloadBtn.disabled = false;
-  reloadBtn.style.opacity = "1";
-  reloadBtn.title = "Recarregar estoques para a nova versão";
-} else {
-  reloadBtn.disabled = true;
-  reloadBtn.style.opacity = "0.5";
-  reloadBtn.title = "Nenhuma atualização detectada no estoque base";
-}
-
-reloadBtn.addEventListener("click", ()=>{
-  if(reloadBtn.disabled) return;
-
-  if(!window.confirm("Deseja realmente recarregar o estoque para os valores definidos no código? Isso substituirá os valores atuais.")) return;
-
-  produtos = JSON.parse(JSON.stringify(produtosBase));
-  localStorage.setItem("produtosBumerangue", JSON.stringify(produtos));
-  localStorage.setItem("hashBaseBumerangue", hashBaseAtual);
-  renderCatalogo();
-  showToast("Estoque recarregado com sucesso!");
-});
-
-
-/* ---------- render catálogo ---------- */
-const catalogoDiv = document.getElementById('catalogo');
-function renderCatalogo(){
+function renderCatalogo(lista) {
+  const catalogoDiv = document.getElementById('catalogo');
   catalogoDiv.innerHTML = "";
-  produtos.forEach((p,i)=>{
+  lista.forEach((p, i) => {
     const el = document.createElement('div');
     el.className = 'produto';
-    el.innerHTML = `<img src="${p.imagem}" alt="${p.nome}"><h3>${p.nome}</h3><p>${p.descricao}</p>`;
-    el.addEventListener('click', ()=> abrirModal(i));
+    el.innerHTML = `
+      <img src="${p.imagem}" alt="${p.nome}">
+      <h3>${p.nome}</h3>
+      <p>${p.descricao}</p>`;
+    el.addEventListener('click', () => abrirModal(i));
     catalogoDiv.appendChild(el);
   });
 }
-renderCatalogo();
 
-/* ---------- produto modal ---------- */
-const produtoModal = document.getElementById('produtoModal');
-const modalNome = document.getElementById('modalNome');
-const modalTabela = document.getElementById('modalTabela');
-document.getElementById('closeProduto').onclick = ()=> produtoModal.classList.remove('show');
-window.addEventListener('click', e => { if(e.target === produtoModal) produtoModal.classList.remove('show') });
+function abrirModal(index) {
+  const produto = listaAtual[index];
+  document.getElementById("modalNome").innerText = produto.nome;
+  document.getElementById("modalDescricao").innerText = produto.descricao;
+  document.getElementById("modalImagem").src = produto.imagem;
+  const estoqueUl = document.getElementById("modalEstoque");
+  estoqueUl.innerHTML = "";
 
-function abrirModal(i){
-  const p = produtos[i];
-  modalNome.textContent = p.nome;
-  modalTabela.innerHTML = '';
-  for(let t in p.estoque){
-    const q = p.estoque[t];
-    const disponivel = q > 0;
-    const statusClass = disponivel ? 'status-disponivel' : 'status-indisponivel';
-    const display = disponivel ? (t === "Não engarrafado" ? `${q} L` : q) : 'Indisponível';
-
-    // botão só aparece se há estoque OU (t === "Não engarrafado" e há litros)
-    let btn = '';
-    if (t === "Não engarrafado" && q > 0) {
-      btn = `<button class="small" onclick="iniciarAdd(${i},'${t}')">Adicionar</button>`;
-    } else if (t !== "Não engarrafado" && q > 0) {
-      btn = `<button class="small" onclick="iniciarAdd(${i},'${t}')">Adicionar</button>`;
+  for (const [formato, valor] of Object.entries(produto.estoque)) {
+    if (valor > 0) {
+      const li = document.createElement("li");
+      li.innerText = `${formato}: ${valor}`;
+      estoqueUl.appendChild(li);
     }
-
-    modalTabela.insertAdjacentHTML('beforeend',
-      `<tr><td>${t}</td><td class="${statusClass}">${display}</td><td>${btn}</td></tr>`);
-  }
-  produtoModal.classList.add('show');
-}
-
-
-/* ---------- escolher tamanho modal (in-site, botões) ---------- */
-const sizeModal = document.getElementById('sizeSelectModal');
-const sizeTitle = document.getElementById('sizeTitle');
-const sizeInfo = document.getElementById('sizeInfo');
-const sizeButtons = document.getElementById('sizeButtons');
-let sizeContext = null; // { index, tipo: 'Não engarrafado' }
-
-document.getElementById('closeSize').onclick = ()=> { sizeModal.classList.remove('show'); sizeContext = null; }
-document.getElementById('cancelSize').onclick = ()=> { sizeModal.classList.remove('show'); sizeContext = null; }
-window.addEventListener('click', e => { if(e.target === sizeModal) { sizeModal.classList.remove('show'); sizeContext = null } });
-
-let selectedSize = null;
-sizeButtons.querySelectorAll('.size-btn').forEach(btn=>{
-  btn.addEventListener('click', ()=>{
-    sizeButtons.querySelectorAll('.size-btn').forEach(b=>b.classList.remove('selected'));
-    btn.classList.add('selected');
-    selectedSize = btn.dataset.size;
-  });
-});
-
-document.getElementById('confirmSize').addEventListener('click', ()=>{
-  if(!sizeContext) { sizeModal.classList.remove('show'); return; }
-  if(!selectedSize){ showToast("Selecione um tamanho antes de continuar"); return; }
-
-  const { index } = sizeContext;
-  const p = produtos[index];
-  // converter tamanho para litros
-  const litersMap = { "280ml": 0.28, "500ml": 0.5, "750ml": 0.75, "1L": 1 };
-  const need = litersMap[selectedSize] || 0;
-  if(p.estoque["Não engarrafado"] >= need){
-    // reduz estoque em litros
-    p.estoque["Não engarrafado"] = +(p.estoque["Não engarrafado"] - need).toFixed(3);
-    // adiciona ao carrinho (preço por tamanho)
-    carrinho.push({ nome: p.nome, tamanho: selectedSize, preco: preco(selectedSize), index });
-    salvar();
-    renderCatalogo();
-    sizeModal.classList.remove('show');
-    produtoModal.classList.remove('show');
-    selectedSize = null;
-    showToast("Adicionado ao carrinho");
-  } else {
-    showToast("Quantidade insuficiente em estoque (não engarrafado)");
-  }
-  sizeContext = null;
-});
-
-/* iniciar fluxo de adicionar: se não engarrafado -> abrir size modal, senão adiciona diretamente */
-function iniciarAdd(index, tipo){
-  const p = produtos[index];
-  if(tipo === "Não engarrafado"){
-    if(p.estoque["Não engarrafado"] <= 0){
-      showToast("Produto não engarrafado indisponível no momento");
-      return;
-    }
-
-    sizeContext = { index, tipo };
-    sizeTitle.textContent = `Escolha o tamanho para ${p.nome}`;
-    sizeInfo.textContent = `Estoque disponível: ${p.estoque["Não engarrafado"]} L`;
-
-    // atualizar disponibilidade dos botões de tamanho
-    const litros = p.estoque["Não engarrafado"];
-    const litersMap = { "280ml": 0.28, "500ml": 0.5, "750ml": 0.75, "1L": 1 };
-    let algumDisponivel = false;
-
-    sizeButtons.querySelectorAll('.size-btn').forEach(btn=>{
-      const tam = btn.dataset.size;
-      const precisa = litersMap[tam];
-      btn.classList.remove('selected');
-      if(litros >= precisa){
-        btn.disabled = false;
-        btn.style.opacity = "1";
-        btn.style.cursor = "pointer";
-        algumDisponivel = true;
-      } else {
-        btn.disabled = true;
-        btn.style.opacity = "0.4";
-        btn.style.cursor = "not-allowed";
-      }
-    });
-
-    selectedSize = null;
-    document.getElementById('confirmSize').style.display = algumDisponivel ? 'inline-block' : 'none';
-    sizeModal.classList.add('show');
-  } else {
-    if(p.estoque[tipo] <= 0){ showToast("Indisponível"); return; }
-    p.estoque[tipo] = p.estoque[tipo] - 1;
-    carrinho.push({ nome: p.nome, tamanho: tipo, preco: preco(tipo), index });
-    salvar();
-    renderCatalogo();
-    produtoModal.classList.remove('show');
-    showToast("Adicionado ao carrinho");
-  }
-}
-
-
-/* ---------- preços ---------- */
-function preco(t){
-  return { "280ml": 30, "500ml": 55, "750ml": 80, "1L": 100 }[t] || 0;
-}
-
-/* ---------- carrinho ---------- */
-const carrinhoBtn = document.getElementById('carrinhoBtn');
-const carrinhoModal = document.getElementById('carrinhoModal');
-const closeCarrinho = document.getElementById('closeCarrinho');
-const itensCarrinhoDiv = document.getElementById('itensCarrinho');
-const totalCarrinhoP = document.getElementById('totalCarrinho');
-const pedidoInput = document.getElementById('pedidoInput');
-const limparCarrinhoBtn = document.getElementById('limparCarrinho');
-const emailInput = document.getElementById('emailCliente');
-const emailCopia = document.getElementById('emailCopia');
-emailInput.addEventListener('input', () => {
-  emailCopia.value = emailInput.value;
-  });
-
-carrinhoBtn.addEventListener('click', abrirCarrinho);
-closeCarrinho.addEventListener('click', ()=> carrinhoModal.classList.remove('show'));
-window.addEventListener('click', e => { if(e.target === carrinhoModal) carrinhoModal.classList.remove('show') });
-
-function abrirCarrinho(){
-  itensCarrinhoDiv.innerHTML = '';
-  if(carrinho.length === 0){
-    itensCarrinhoDiv.innerHTML = '<p class="small-muted">Seu carrinho está vazio.</p>';
-    totalCarrinhoP.textContent = '';
-    carrinhoModal.classList.add('show');
-    return;
-  }
-  let total = 0;
-  carrinho.forEach((c,i)=>{
-    total += c.preco;
-    const pElem = document.createElement('p');
-    pElem.innerHTML = `<span class="item-left"><strong>${c.nome}</strong><span class="small-muted">${c.tamanho} · R$ ${c.preco},00</span></span>
-                       <span><button class="danger small" onclick="removerItem(${i})">Remover</button></span>`;
-    itensCarrinhoDiv.appendChild(pElem);
-  });
-  totalCarrinhoP.textContent = `Total: R$ ${total},00`;
-  carrinhoModal.classList.add('show');
-}
-
-function removerItem(i){
-  const item = carrinho[i];
-  // se não era 'Não engarrafado', repor unidade
-  if(item.tamanho !== "Não engarrafado"){
-    produtos[item.index].estoque[item.tamanho] = (produtos[item.index].estoque[item.tamanho] || 0) + 1;
-  } else {
-    // se foi retirado da reserva em litros (ou seja, foi descontado na adição), repor o equivalente em L
-    // Nota: aqui não sabemos quantos litros originais foram descontados a não ser pelo tamanho escolhido.
-    // Como 'Não engarrafado' no carrinho nunca registra 'Não engarrafado' (registramos tamanho real), não entra aqui.
-  }
-  carrinho.splice(i,1);
-  salvar();
-  abrirCarrinho();
-  renderCatalogo();
-  showToast("Item removido");
-}
-
-/* limpar carrinho (não repoe estoques) */
-limparCarrinhoBtn.addEventListener('click', ()=>{
-  if(!confirmarUI("Deseja esvaziar o carrinho?")) return;
-  // repor estoques para itens que haviam sido decrementados ao adicionar (simples approach: restaurar do localStorage inicial)
-  // Observação: para simplicidade, ao limpar apenas removemos do carrinho sem repor automaticamente.
-  carrinho = [];
-  salvar();
-  abrirCarrinho();
-  showToast("Carrinho limpo");
-});
-
-/* ---------- submissão do pedido (Formspree) ---------- */
-document.getElementById('formPedido').addEventListener('submit', function(e){
-  if(carrinho.length === 0){
-    e.preventDefault();
-    showToast("Carrinho vazio — adicione itens antes de finalizar");
-    return;
   }
 
-  // Gera o resumo do pedido
-  const resumo = carrinho.map(c => `${c.nome} (${c.tamanho}) - R$${c.preco},00`).join("\n");
-  pedidoInput.value = resumo;
-
-  setTimeout(()=>{
-    carrinho = [];
-    salvar();
-    carrinhoModal.classList.remove('show');  // fecha o modal
-    document.getElementById('formPedido').reset(); // limpa o formulário
-    showToast("Pedido enviado! Obrigado.");
-  }, 400);
-});
-
-/* ---------- confirmação em UI (modal leve) ---------- */
-function confirmarUI(mensagem){
-
-  return window.confirm(mensagem);
+  document.getElementById("produtoModal").style.display = "block";
 }
 
-/* ---------- inicialização ---------- */
-renderCatalogo();
-salvar();
+function fecharModal() {
+  document.getElementById("produtoModal").style.display = "none";
+}
 
+window.onclick = function(event) {
+  const modal = document.getElementById("produtoModal");
+  if (event.target === modal) modal.style.display = "none";
+}
+
+carregarProdutos();
 </script>
+
 </body>
 </html>
