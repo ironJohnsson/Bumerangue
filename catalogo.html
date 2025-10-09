@@ -319,38 +319,6 @@ reloadBtn.addEventListener("click", ()=>{
 });
 
 
-/* ---------- restaurar estoque ---------- */
-const resetBtn = document.getElementById("resetEstoque");
-
-function atualizarBotaoReset() {
-  const versaoSalva = localStorage.getItem("versaoCatalogoBumerangue");
-  if (versaoSalva === versaoCatalogo) {
-    resetBtn.disabled = true;
-    resetBtn.style.opacity = "0.5";
-    resetBtn.style.cursor = "not-allowed";
-    resetBtn.title = "O estoque já está atualizado";
-  } else {
-    resetBtn.disabled = false;
-    resetBtn.style.opacity = "1";
-    resetBtn.style.cursor = "pointer";
-    resetBtn.title = "Clique para recarregar o novo estoque";
-  }
-}
-
-resetBtn.addEventListener("click", () => {
-  if (resetBtn.disabled) return;
-  if (!confirm("Deseja recarregar o novo estoque do catálogo?")) return;
-
-  produtos = JSON.parse(JSON.stringify(produtosBase));
-  localStorage.setItem("versaoCatalogoBumerangue", versaoCatalogo);
-  salvar();
-  renderCatalogo();
-  showToast("Catálogo atualizado com sucesso!");
-  atualizarBotaoReset();
-});
-
-atualizarBotaoReset();
-
 /* ---------- render catálogo ---------- */
 const catalogoDiv = document.getElementById('catalogo');
 function renderCatalogo(){
