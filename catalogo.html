@@ -286,6 +286,10 @@ function salvar(){
 /* ---------- recarregar estoque ---------- */
 const reloadBtn = document.getElementById("reloadBtn");
 
+reloadBtn.addEventListener("click", () => {
+  renderCatalogo(); // ou a função que redesenha a tabela
+});
+
 // gera uma assinatura única (hash simplificado) do estoque base atual
 function gerarHashEstoque(estoque){
   return JSON.stringify(estoque).replace(/\s+/g,'');
