@@ -87,6 +87,12 @@
   color:#666;
 }
 
+button.ghost:hover {
+  background: var(--verde);
+  color: #fff;
+  border-color: var(--verde);
+}
+
   /* toast / feedback moderno */
   .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:32px;background:#111;color:#fff;padding:12px 18px;border-radius:10px;box-shadow:0 6px 20px rgba(0,0,0,.3);z-index:1200;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s}
   .toast.show{opacity:1;transform:translateX(-50%) translateY(-6px);pointer-events:auto}
@@ -122,6 +128,9 @@
         <tr><td>1L</td><td>R$ 100,00</td></tr>
       </tbody>
     </table>
+    <div style="text-align:center; margin-bottom:30px;">
+  <button id="resetEstoque" class="ghost">🔄 Recarregar Estoque</button>
+    </div>
   </div>
 
   <div class="catalogo" id="catalogo"></div>
@@ -261,6 +270,16 @@ function salvar(){
   localStorage.setItem("produtosBumerangue", JSON.stringify(produtos));
   localStorage.setItem("carrinhoBumerangue", JSON.stringify(carrinho));
 }
+
+/* ---------- restaurar estoque ---------- */
+const resetBtn = document.getElementById("resetEstoque");
+resetBtn.addEventListener("click", () => {
+  if (!confirm("Deseja realmente recarregar o estoque original?")) return;
+  produtos = JSON.parse(JSON.stringify(produtosBase)); // restaura os valores originais
+  salvar(); // salva no localStorage
+  renderCatalogo(); // atualiza a tela
+  showToast("Estoque recarregado com sucesso!");
+});
 
 /* ---------- render catálogo ---------- */
 const catalogoDiv = document.getElementById('catalogo');
