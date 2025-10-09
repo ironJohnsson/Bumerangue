@@ -254,8 +254,19 @@ const produtosBase = [
   estoque: { "280ml": 0, "500ml": 0, "750ml": 0, "1L": 0, "Não engarrafado": 1 } }
 ];
 
-let produtos = JSON.parse(localStorage.getItem("produtosBumerangue")) || JSON.parse(JSON.stringify(produtosBase));
+const versaoCatalogo = btoa(JSON.stringify(produtosBase)).slice(0, 20);
+
+// recupera dados salvos
+let produtos = JSON.parse(localStorage.getItem("produtosBumerangue"));
 let carrinho = JSON.parse(localStorage.getItem("carrinhoBumerangue")) || [];
+
+let versaoSalva = localStorage.getItem("versaoCatalogoBumerangue");
+
+// se não houver dados ou se a versão mudou → recarrega do código
+if (!produtos || versaoSalva !== versaoCatalogo) {
+  produtos = JSON.parse(JSON.stringify(produtosBase));
+  localStorage.setItem("versaoCatalogoBumerangue", versaoCatalogo);
+}
 
 /* ---------- utilitários ---------- */
 const toasts = document.getElementById('toast');
@@ -273,13 +284,35 @@ function salvar(){
 
 /* ---------- restaurar estoque ---------- */
 const resetBtn = document.getElementById("resetEstoque");
+
+function atualizarBotaoReset() {
+  const versaoSalva = localStorage.getItem("versaoCatalogoBumerangue");
+  if (versaoSalva === versaoCatalogo) {
+    resetBtn.disabled = true;
+    resetBtn.style.opacity = "0.5";
+    resetBtn.style.cursor = "not-allowed";
+    resetBtn.title = "O estoque já está atualizado";
+  } else {
+    resetBtn.disabled = false;
+    resetBtn.style.opacity = "1";
+    resetBtn.style.cursor = "pointer";
+    resetBtn.title = "Clique para recarregar o novo estoque";
+  }
+}
+
 resetBtn.addEventListener("click", () => {
-  if (!confirm("Deseja realmente recarregar o estoque original?")) return;
-  produtos = JSON.parse(JSON.stringify(produtosBase)); // restaura os valores originais
-  salvar(); // salva no localStorage
-  renderCatalogo(); // atualiza a tela
-  showToast("Estoque recarregado com sucesso!");
+  if (resetBtn.disabled) return;
+  if (!confirm("Deseja recarregar o novo estoque do catálogo?")) return;
+
+  produtos = JSON.parse(JSON.stringify(produtosBase));
+  localStorage.setItem("versaoCatalogoBumerangue", versaoCatalogo);
+  salvar();
+  renderCatalogo();
+  showToast("Catálogo atualizado com sucesso!");
+  atualizarBotaoReset();
 });
+
+atualizarBotaoReset();
 
 /* ---------- render catálogo ---------- */
 const catalogoDiv = document.getElementById('catalogo');
