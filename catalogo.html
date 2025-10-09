@@ -204,6 +204,9 @@ button.ghost:hover {
 <!-- toast -->
 <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
+<button id="reloadBtn" class="ghost" style="position:fixed;right:100px;bottom:20px;">🔄 Recarregar Estoque</button>
+
+
 <script>
 /* ========== Dados base (CATÁLOGO ORIGINAL) ========== */
 const produtosBase = [
@@ -281,6 +284,42 @@ function salvar(){
   localStorage.setItem("produtosBumerangue", JSON.stringify(produtos));
   localStorage.setItem("carrinhoBumerangue", JSON.stringify(carrinho));
 }
+
+/* ---------- recarregar estoque ---------- */
+const reloadBtn = document.getElementById("reloadBtn");
+
+// gera uma assinatura única (hash simplificado) do estoque base atual
+function gerarHashEstoque(estoque){
+  return JSON.stringify(estoque).replace(/\s+/g,'');
+}
+
+// salva a hash da última versão base conhecida
+const hashBaseAtual = gerarHashEstoque(produtosBase);
+const hashBaseSalvo = localStorage.getItem("hashBaseBumerangue");
+
+// habilita botão somente se detectou mudança manual no código base
+if(hashBaseAtual !== hashBaseSalvo){
+  reloadBtn.disabled = false;
+  reloadBtn.style.opacity = "1";
+  reloadBtn.title = "Recarregar estoques para a nova versão";
+} else {
+  reloadBtn.disabled = true;
+  reloadBtn.style.opacity = "0.5";
+  reloadBtn.title = "Nenhuma atualização detectada no estoque base";
+}
+
+reloadBtn.addEventListener("click", ()=>{
+  if(reloadBtn.disabled) return;
+
+  if(!window.confirm("Deseja realmente recarregar o estoque para os valores definidos no código? Isso substituirá os valores atuais.")) return;
+
+  produtos = JSON.parse(JSON.stringify(produtosBase));
+  localStorage.setItem("produtosBumerangue", JSON.stringify(produtos));
+  localStorage.setItem("hashBaseBumerangue", hashBaseAtual);
+  renderCatalogo();
+  showToast("Estoque recarregado com sucesso!");
+});
+
 
 /* ---------- restaurar estoque ---------- */
 const resetBtn = document.getElementById("resetEstoque");
