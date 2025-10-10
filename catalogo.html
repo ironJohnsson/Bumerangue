@@ -112,9 +112,9 @@
 </div>
 
 <script>
-const sheetId = "SEU_ID_AQUI"; // <-- substitua aqui
-const sheetName = "Página1";
-const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json&tq&sheet=${sheetName}`;
+const sheetId = "19c63mlSybEumd2qgRciqTOzuXtCs_5eYEa5jXTylKyQ"; // <-- substitua aqui
+const sheetName = "Bebidas";
+const url = `https://script.google.com/macros/s/AKfycbz0D3h26Lmbek-k1YSvWDI9YuZNOjKFvOJqlBBi-rSJEPQ2lPP9pO7OVGR3U199LVtnbA/exec`;
 
 let produtosBase = [];
 let listaAtual = [];
@@ -122,30 +122,27 @@ let listaAtual = [];
 async function carregarProdutos() {
   try {
     const res = await fetch(url);
-    const text = await res.text();
-    const json = JSON.parse(text.substr(47).slice(0, -2));
-    const rows = json.table.rows.map(r => r.c.map(c => (c ? c.v : "")));
-
-    produtosBase = rows.map(r => ({
-      categoria: r[0],
-      subcategoria: r[1],
-      nome: r[2],
-      descricao: r[3],
-      imagem: r[4],
+    const data = await res.json();
+    produtosBase = data.map(r => ({
+      categoria: r.Categoria,
+      subcategoria: r.Subcategoria,
+      nome: r.Nome,
+      descricao: r.Descrição,
+      imagem: r.Imagem,
       estoque: {
-        "280ml": Number(r[5]) || 0,
-        "500ml": Number(r[6]) || 0,
-        "750ml": Number(r[7]) || 0,
-        "1L": Number(r[8]) || 0,
-        "Não engarrafado": Number(r[9]) || 0
+        "280ml": Number(r["280ml"]) || 0,
+        "500ml": Number(r["500ml"]) || 0,
+        "750ml": Number(r["750ml"]) || 0,
+        "1L": Number(r["1L"]) || 0,
+        "Não engarrafado": Number(r["Não engarrafado"]) || 0
       }
     }));
-
     renderCategorias();
   } catch (e) {
     console.error("Erro ao carregar produtos:", e);
   }
 }
+
 
 function renderCategorias() {
   const catDiv = document.getElementById("categorias");
