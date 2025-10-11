@@ -214,51 +214,114 @@ function renderCatalogo(){
   });
 }
 
-function abrirModalProduto(produto){
+function abrirModalProduto(produto) {
   modalNome.textContent = produto.nome;
   modalDescricao.textContent = produto.descricao || '';
   modalTabela.innerHTML = '';
 
   const tamanhos = ["280ml","500ml","750ml","1L"];
-  tamanhos.forEach(t=>{
+  tamanhos.forEach(t => {
     const qtd = Number(produto[t] || 0);
     const disponivel = qtd > 0;
-    modalTabela.insertAdjacentHTML('beforeend',`
+    modalTabela.insertAdjacentHTML('beforeend', `
       <tr>
         <td>${t}</td>
         <td class="${disponivel ? 'status-ok' : 'status-no'}">
           ${disponivel ? `${qtd} un.` : 'Indisponível'}
         </td>
         <td>${disponivel ? `<button class="small" onclick='adicionarCarrinho("${produto.nome}","${t}")'>Adicionar</button>` : ''}</td>
-      </tr>`);
+      </tr>
+    `);
   });
 
   // --- Se existir "Não engarrafado" ---
   const naoEng = Number(produto['nao_engarrafado'] || produto['Não engarrafado'] || 0);
   if (naoEng > 0) {
-    const litrosRestantes = naoEng; // volume em litros disponível
-    const opcoes = [
-      {label:"280ml", valor:0.28},
-      {label:"500ml", valor:0.5},
-      {label:"750ml", valor:0.75},
-      {label:"1L", valor:1}
+    const tamanhosPadrao = [
+      { label: "280ml", valorL: 0.28, preco: PRECO_POR_TAMANHO["280ml"] },
+      { label: "500ml", valorL: 0.5, preco: PRECO_POR_TAMANHO["500ml"] },
+      { label: "750ml", valorL: 0.75, preco: PRECO_POR_TAMANHO["750ml"] },
+      { label: "1L", valorL: 1, preco: PRECO_POR_TAMANHO["1L"] }
     ];
+
     let html = `
-      <tr>
-        <td colspan="3" style="text-align:left;padding:10px;">
-          <strong>Não engarrafado:</strong> ${litrosRestantes.toFixed(2)} L disponíveis
-          <br><div style="margin-top:6px;display:flex;flex-wrap:wrap;gap:6px;">
+      <tr><td colspan="3" style="text-align:left;padding:10px;">
+        <strong>Não engarrafado:</strong> ${naoEng.toFixed(2)} L disponíveis<br>
+        <label style="margin-top:8px;display:block;">Selecione o tamanho da garrafa:</label>
+        <div id="opcoesTamanhos" style="margin:8px 0;display:flex;flex-wrap:wrap;gap:6px;">
     `;
-    opcoes.forEach(op=>{
-      const desabilitar = op.valor > litrosRestantes;
-      html += `<button class="small" ${desabilitar?'disabled':''} style="flex:1" onclick='adicionarNaoEngarrafado("${produto.nome}",${op.valor},${litrosRestantes},"${produto.nome.replace(/"/g,"\\\"")}")'>${op.label}</button>`;
+
+    tamanhosPadrao.forEach(op => {
+      const desabilitar = op.valorL > naoEng;
+      html += `<button class="small" ${desabilitar ? 'disabled' : ''} data-tam="${op.valorL}" data-label="${op.label}" data-preco="${op.preco}" onclick="selecionarTamanhoNaoEng(this)">${op.label}</button>`;
     });
-    html += "</div></td></tr>";
-    modalTabela.insertAdjacentHTML('beforeend',html);
+
+    html += `
+        </div>
+        <div id="controleQuantidade" style="display:none;margin-top:8px;">
+          <label>Quantas garrafas?</label>
+          <input id="qtdNE" type="number" min="1" value="1" style="width:70px;margin:0 6px;">
+          <span id="infoVolume" style="color:#555;"></span><br>
+          <button id="btnAddNE" class="small" style="margin-top:8px;">Adicionar</button>
+        </div>
+      </td></tr>
+    `;
+    modalTabela.insertAdjacentHTML('beforeend', html);
+
+    // Guardar produto ativo
+    window.produtoAtivoNE = { nome: produto.nome, volumeTotal: naoEng };
   }
 
   produtoModal.classList.add('show');
 }
+
+// --- Função auxiliar ---
+function selecionarTamanhoNaoEng(btn) {
+  // Marcar seleção
+  document.querySelectorAll('#opcoesTamanhos button').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+
+  const tamanho = parseFloat(btn.dataset.tam);
+  const label = btn.dataset.label;
+  const precoUnit = parseFloat(btn.dataset.preco);
+  const volumeDisponivel = window.produtoAtivoNE.volumeTotal;
+
+  const controle = document.getElementById('controleQuantidade');
+  const qtdInput = document.getElementById('qtdNE');
+  const infoVolume = document.getElementById('infoVolume');
+  controle.style.display = 'block';
+
+  const atualizarInfo = () => {
+    const qtd = parseInt(qtdInput.value) || 0;
+    const volumeTotal = (qtd * tamanho).toFixed(2);
+    infoVolume.textContent = `(${volumeTotal} L total)`;
+    const btnAdd = document.getElementById('btnAddNE');
+    btnAdd.disabled = (volumeTotal > volumeDisponivel);
+  };
+
+  qtdInput.oninput = atualizarInfo;
+  atualizarInfo();
+
+  document.getElementById('btnAddNE').onclick = () => {
+    const qtd = parseInt(qtdInput.value) || 0;
+    const totalLitros = qtd * tamanho;
+    if (totalLitros > volumeDisponivel) { showToast('Volume excede o disponível'); return; }
+
+    // calcular preço total
+    const preco = precoUnit * qtd;
+    carrinho.push({ nome: window.produtoAtivoNE.nome, tamanho: `${label} (${qtd} un.)`, preco });
+    salvarCarrinho();
+    produtoModal.classList.remove('show');
+    showToast('Adicionado ao carrinho!');
+
+    // atualizar volume disponível local
+    window.produtoAtivoNE.volumeTotal = +(volumeDisponivel - totalLitros).toFixed(2);
+    const p = produtosAtuais.find(x => x.nome === window.produtoAtivoNE.nome);
+    if (p) p['nao_engarrafado'] = window.produtoAtivoNE.volumeTotal;
+    renderCatalogo();
+  };
+}
+
 
 // Adicionar produto "não engarrafado"
 function adicionarNaoEngarrafado(nome, litros, disponivelTotal, produtoId){
