@@ -6,26 +6,29 @@
 <title>Catálogo - Bumerangue</title>
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
 <style>
-:root{
-  --verde:#2e8b57; --verde-esc:#256b46; --fundo:#fffaf0; --card:#f8f8f8;
-}
+:root{--verde:#2e8b57;--verde-esc:#256b46;--fundo:#fffaf0;--card:#f8f8f8;}
 *{box-sizing:border-box}
 body{font-family:"Roboto",sans-serif;background:var(--fundo);color:#333;margin:0}
 header,footer{background:var(--verde);color:#fff;padding:15px;text-align:center}
 nav a{margin:0 15px;color:#fff;text-decoration:none;font-weight:700}
 nav a:hover{color:#ffeb3b}
-section.categoria{margin:40px auto;max-width:1100px}
-.subtitulo{font-size:1.3rem;margin-top:30px;margin-bottom:10px;color:var(--verde-esc);border-bottom:2px solid var(--verde);display:inline-block;padding-bottom:4px}
+button{cursor:pointer;font-weight:700;border:none;border-radius:8px;transition:.2s}
+.categoria-btn{background:var(--verde);color:#fff;padding:12px 16px;margin:10px auto;display:block;width:220px}
+.categoria-btn:hover{background:var(--verde-esc)}
+.sub-btn{background:#fff;border:2px solid var(--verde);color:var(--verde);padding:8px 12px;margin:5px;border-radius:6px}
+.sub-btn:hover{background:var(--verde);color:#fff}
+.subcategoria-container{display:none;justify-content:center;flex-wrap:wrap}
 .catalogo{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;padding:20px}
 @media(max-width:900px){.catalogo{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:600px){.catalogo{grid-template-columns:1fr}}
-.produto{background:var(--card);border-radius:10px;box-shadow:0 2px 6px rgba(0,0,0,.1);overflow:hidden;text-align:center;cursor:pointer;transition:transform .18s}
+.produto{background:var(--card);border-radius:10px;box-shadow:0 2px 6px rgba(0,0,0,.1);overflow:hidden;text-align:center;transition:transform .18s}
 .produto:hover{transform:scale(1.03)}
 .produto img{width:100%;height:200px;object-fit:cover}
 .produto h3{color:var(--verde);margin:10px 0}
 .produto p{padding:0 10px 15px;color:#666}
 #tabelaPrecos{max-width:600px;margin:30px auto;background:var(--card);border-radius:10px;box-shadow:0 2px 6px rgba(0,0,0,.1);padding:15px;display:none}
 #tabelaPrecos h3{color:var(--verde);text-align:center;margin-bottom:10px}
+#carrinhoBtn{position:fixed;right:20px;bottom:20px;background:var(--verde);color:#fff;border-radius:50%;width:60px;height:60px;border:none;font-size:22px;box-shadow:0 8px 20px rgba(0,0,0,.25)}
 .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:32px;background:#111;color:#fff;padding:12px 18px;border-radius:10px;box-shadow:0 6px 20px rgba(0,0,0,.3);z-index:1200;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(-6px);pointer-events:auto}
 .modal{display:none;position:fixed;z-index:1000;left:0;top:0;width:100%;height:100%;background:rgba(0,0,0,.45);justify-content:center;align-items:center;padding:20px}
@@ -38,11 +41,7 @@ th,td{padding:8px;text-align:center;border-bottom:1px solid #eee}
 th{background:var(--verde);color:#fff}
 .status-disponivel{color:green;font-weight:700}
 .status-indisponivel{color:red;font-weight:700}
-button{background:var(--verde);color:#fff;border:none;padding:8px 12px;border-radius:8px;cursor:pointer;font-weight:700}
-button.small{padding:5px 10px;font-size:.9rem;border-radius:6px}
-button.ghost{background:transparent;color:var(--verde);border:2px solid var(--verde)}
-button.ghost:hover{background:var(--verde);color:#fff}
-#carrinhoBtn{position:fixed;right:20px;bottom:20px;background:var(--verde);color:#fff;border-radius:50%;width:60px;height:60px;border:none;font-size:22px;box-shadow:0 8px 20px rgba(0,0,0,.25);cursor:pointer}
+#qrCode{margin:10px auto;display:block}
 </style>
 </head>
 <body>
@@ -57,7 +56,6 @@ button.ghost:hover{background:var(--verde);color:#fff}
 </header>
 
 <main>
-  <!-- Tabela de preços (apenas para Bebidas) -->
   <div id="tabelaPrecos">
     <h3>Tabela de Preços (padrão para todos os sabores)</h3>
     <table>
@@ -71,137 +69,108 @@ button.ghost:hover{background:var(--verde);color:#fff}
     </table>
   </div>
 
-  <div id="catalogoContainer"></div>
+  <div id="categorias">
+    <button class="categoria-btn" data-cat="Bebidas">🍸 Bebidas</button>
+    <div class="subcategoria-container" id="sub-bebidas">
+      <button class="sub-btn" data-aba="Releitura dos Clássicos">Releitura dos Clássicos</button>
+      <button class="sub-btn" data-aba="Frutas">Frutas</button>
+      <button class="sub-btn" data-aba="Sabores Brasileiros">Sabores Brasileiros</button>
+    </div>
+
+    <button class="categoria-btn" data-cat="Sabonetes">🧼 Sabonetes</button>
+    <div class="subcategoria-container" id="sub-sabonetes">
+      <button class="sub-btn" data-aba="Sabonetes">Sabonetes</button>
+    </div>
+
+    <button class="categoria-btn" data-cat="Doces">🍬 Doces</button>
+    <div class="subcategoria-container" id="sub-doces">
+      <button class="sub-btn" data-aba="Doces">Doces</button>
+    </div>
+  </div>
+
+  <div id="catalogo" class="catalogo"></div>
 </main>
 
 <footer><p>&copy; 2025 Bumerangue - Bebidas Artesanais</p></footer>
 
-<!-- Modal produto -->
-<div id="produtoModal" class="modal">
-  <div class="modal-card">
-    <span class="close" id="closeProduto">&times;</span>
-    <h2 id="modalNome"></h2>
-    <table>
-      <thead><tr><th>Tamanho</th><th>Qtde</th><th>Ação</th></tr></thead>
-      <tbody id="modalTabela"></tbody>
-    </table>
-  </div>
-</div>
-
 <button id="carrinhoBtn" title="Ver carrinho">🛒</button>
 <div id="toast" class="toast"></div>
 
+<!-- Modal QR -->
+<div id="qrModal" class="modal">
+  <div class="modal-card">
+    <span class="close" id="closeQr">&times;</span>
+    <h3>Pagamento via Pix</h3>
+    <p>Escaneie o QR Code para pagar</p>
+    <img id="qrCode" width="200" height="200" alt="QR Code Pix">
+    <p id="valorQr"></p>
+  </div>
+</div>
+
 <script>
-/* === CONFIG === */
-const SHEET_ID = "19c63mlSybEumd2qgRciqTOzuXtCs_5eYEa5jXTylKyQ"; // <-- ID da planilha Google
-const APP_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwIjG3LEZt_xi0U8Wj0x0C_H-8rkb92nIkXA6uNpBiydGj-aQ4ro4N9BTtQfW42Czi_Ng/exec"; // <-- URL do Apps Script (Parte 2)
-const CATEGORIAS = {
-  "Bebidas": ["Releitura dos Clássicos", "Frutas", "Sabores Brasileiros"],
-  "Sabonetes": ["Sabonetes"],
-  "Doces": ["Doces"]
-};
-const precos = { "280ml":30, "500ml":55, "750ml":80, "1L":100 };
-let produtos = [];
-let carrinho = [];
+const SHEET_ID = "19c63mlSybEumd2qgRciqTOzuXtCs_5eYEa5jXTylKyQ";
+const precos = {"280ml":30,"500ml":55,"750ml":80,"1L":100};
+const categorias = {Bebidas:["Releitura dos Clássicos","Frutas","Sabores Brasileiros"],Sabonetes:["Sabonetes"],Doces:["Doces"]};
+const catalogo=document.getElementById('catalogo'), tabela=document.getElementById('tabelaPrecos');
+let carrinho=[];
 
-function showToast(msg){
-  const t=document.getElementById("toast");
-  t.textContent=msg; t.classList.add("show");
-  setTimeout(()=>t.classList.remove("show"),3000);
-}
+function showToast(msg){const t=document.getElementById("toast");t.textContent=msg;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),3000);}
 
-/* === CARREGAR CATÁLOGO === */
-async function carregarCatalogo(){
-  const container=document.getElementById("catalogoContainer");
-  container.innerHTML="<p style='text-align:center'>⏳ Carregando catálogo...</p>";
-  let html="";
+//=== categorias
+document.querySelectorAll(".categoria-btn").forEach(btn=>{
+  btn.addEventListener("click",()=>{
+    document.querySelectorAll(".subcategoria-container").forEach(div=>div.style.display="none");
+    const alvo=document.getElementById("sub-"+btn.dataset.cat.toLowerCase());
+    if(alvo) alvo.style.display="flex";
+    catalogo.innerHTML="";
+    tabela.style.display = btn.dataset.cat==="Bebidas"?"block":"none";
+  });
+});
 
-  for(const cat in CATEGORIAS){
-    // Mostrar tabela de preço apenas para BEBIDAS
-    const tabela=document.getElementById("tabelaPrecos");
-    tabela.style.display = (cat === "Bebidas") ? "block" : "none";
+document.querySelectorAll(".sub-btn").forEach(sub=>{
+  sub.addEventListener("click",()=>carregarAba(sub.dataset.aba));
+});
 
-    html += `<section class='categoria'><h2>${cat}</h2>`;
-    for(const sub of CATEGORIAS[cat]){
-      try{
-        const resp=await fetch(`https://opensheet.elk.sh/${SHEET_ID}/${encodeURIComponent(sub)}`);
-        const dados=await resp.json();
-        if(dados.length===0) continue;
-        html += `<h3 class='subtitulo'>${sub}</h3><div class='catalogo'>`;
-        dados.forEach((d)=>{
-          const produto={
-            nome:d.nome,
-            descricao:d.descricao,
-            imagem:d.imagem||"https://via.placeholder.com/400x200",
-            aba:sub,
-            estoque:{
-              "280ml":+d["280ml"]||0,
-              "500ml":+d["500ml"]||0,
-              "750ml":+d["750ml"]||0,
-              "1L":+d["1L"]||0,
-              "Não engarrafado":+d["NaoEngarrafado"]||0
-            }
-          };
-          const index=produtos.push(produto)-1;
-          html += `<div class='produto' onclick='abrirModal(${index})'>
-                    <img src='${produto.imagem}' alt='${produto.nome}'>
-                    <h3>${produto.nome}</h3>
-                    <p>${produto.descricao}</p></div>`;
-        });
-        html += "</div>";
-      }catch(e){
-        html += `<p style='color:red;text-align:center'>Erro ao carregar ${sub}</p>`;
+//=== carregar produtos
+async function carregarAba(aba){
+  catalogo.innerHTML="<p style='text-align:center'>⏳ Carregando "+aba+"...</p>";
+  const url=`https://opensheet.elk.sh/${SHEET_ID}/${encodeURIComponent(aba)}`;
+  try{
+    const resp=await fetch(url);const dados=await resp.json();catalogo.innerHTML="";
+    const bebidas=["Releitura dos Clássicos","Frutas","Sabores Brasileiros"].includes(aba);
+    dados.forEach(d=>{
+      const div=document.createElement("div");div.className="produto";
+      if(bebidas){
+        div.innerHTML=`<img src="${d.imagem||'https://via.placeholder.com/400x200'}"><h3>${d.nome}</h3><p>${d.descricao||''}</p>
+        <table><thead><tr><th>Tamanho</th><th>Qtde</th></tr></thead>
+        <tbody>
+        <tr><td>280ml</td><td>${d["280ml"]||'-'}</td></tr>
+        <tr><td>500ml</td><td>${d["500ml"]||'-'}</td></tr>
+        <tr><td>750ml</td><td>${d["750ml"]||'-'}</td></tr>
+        <tr><td>1L</td><td>${d["1L"]||'-'}</td></tr>
+        <tr><td>Não engarrafado</td><td>${d["nao_engarrafado"]||'-'}</td></tr></tbody></table>`;
+      }else{
+        div.innerHTML=`<img src="${d.imagem||'https://via.placeholder.com/400x200'}"><h3>${d.nome}</h3>
+        <p>${d.descricao||''}</p><p><strong>Estoque:</strong> ${d.estoque||'-'}</p>
+        <p><strong>Preço:</strong> R$ ${d.preco||'-'}</p>`;
       }
-    }
-    html += "</section>";
-  }
-  container.innerHTML=html||"<p style='text-align:center'>Nenhum item disponível.</p>";
+      catalogo.appendChild(div);
+    });
+  }catch(e){catalogo.innerHTML=`<p style="color:red;text-align:center">Erro ao carregar ${aba}</p>`;}
 }
 
-/* === MODAL PRODUTO === */
-const modal=document.getElementById("produtoModal");
-const modalNome=document.getElementById("modalNome");
-const modalTabela=document.getElementById("modalTabela");
-document.getElementById("closeProduto").onclick=()=>modal.classList.remove("show");
-window.onclick=e=>{if(e.target===modal)modal.classList.remove("show")};
-
-function abrirModal(i){
-  const p=produtos[i];
-  modalNome.textContent=p.nome;
-  modalTabela.innerHTML="";
-  for(const t in p.estoque){
-    const q=p.estoque[t];
-    const status=q>0?"status-disponivel":"status-indisponivel";
-    let btn="";
-    if(q>0) btn=`<button class='small' onclick="addCarrinho(${i},'${t}')">Adicionar</button>`;
-    const display=q>0?(t==="Não engarrafado"?`${q} L`:q):"Indisponível";
-    modalTabela.insertAdjacentHTML("beforeend",`<tr><td>${t}</td><td class='${status}'>${display}</td><td>${btn}</td></tr>`);
-  }
-  modal.classList.add("show");
-}
-
-/* === CARRINHO === */
-function addCarrinho(i,t){
-  const p=produtos[i];
-  if(p.estoque[t]<=0){showToast("Indisponível.");return;}
-  p.estoque[t]--;
-  carrinho.push({nome:p.nome,tamanho:t,preco:precos[t]||0,aba:p.aba});
-  showToast(`${p.nome} (${t}) adicionado.`);
-  modal.classList.remove("show");
-}
-
-document.getElementById("carrinhoBtn").onclick=async()=>{
-  if(carrinho.length===0){showToast("Carrinho vazio.");return;}
-  const resumo=carrinho.map(c=>`${c.nome} (${c.tamanho}) - R$${c.preco},00`).join("\n");
-  if(confirm("Enviar pedido?\n\n"+resumo)){
-    await fetch(APP_SCRIPT_URL,{method:"POST",body:JSON.stringify(carrinho)});
-    carrinho=[];
-    showToast("Pedido enviado!");
-  }
-};
-
-/* === INÍCIO === */
-carregarCatalogo();
+//=== carrinho e QR
+document.getElementById("carrinhoBtn").addEventListener("click",()=>{
+  if(carrinho.length===0){showToast("Carrinho vazio");return;}
+  const total=carrinho.reduce((s,c)=>s+c.preco,0);
+  const qr=document.getElementById("qrCode");
+  const valor=document.getElementById("valorQr");
+  const qrUrl=`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=Pix%20Bumerangue%20R$${total}`;
+  qr.src=qrUrl;valor.textContent=`Total: R$ ${total},00`;
+  document.getElementById("qrModal").classList.add("show");
+});
+document.getElementById("closeQr").onclick=()=>document.getElementById("qrModal").classList.remove("show");
+window.onclick=e=>{if(e.target===document.getElementById("qrModal"))document.getElementById("qrModal").classList.remove("show");};
 </script>
 </body>
 </html>
