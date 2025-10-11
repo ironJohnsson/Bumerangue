@@ -1,374 +1,303 @@
 <!doctype html>
 <html lang="pt-BR">
-<head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Catálogo - Bumerangue</title>
+<head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>Catálogo</title>
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
 <style>
-  :root{--verde:#2e8b57;--verde-esc:#256b46;--fundo:#fffaf0;--card:#f8f8f8}
-  *{box-sizing:border-box}
-  body{font-family:"Roboto",sans-serif;background:var(--fundo);color:#333;margin:0}
-  header,footer{background:var(--verde);color:#fff;padding:15px;text-align:center}
-  nav a{margin:0 15px;color:#fff;text-decoration:none;font-weight:700}
-  nav a:hover, nav a.active{color:#ffeb3b}
-  main{padding:20px 12px 80px}
-  .top-controls{display:flex;flex-direction:column;align-items:center;gap:12px;margin-bottom:18px}
-  .cats{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
-  .cat-btn{padding:10px 14px;border-radius:10px;border:2px solid var(--verde);background:#fff;color:var(--verde);cursor:pointer;font-weight:700}
-  .cat-btn.active{background:var(--verde);color:#fff}
-  .subcats{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
-  .subcat-btn{padding:8px 10px;border-radius:8px;border:2px solid var(--verde);background:#fff;color:var(--verde);cursor:pointer;font-weight:700}
-  .subcat-btn.active{background:var(--verde);color:#fff}
-  .catalogo{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:20px;padding:10px 20px}
-  .produto{background:var(--card);border-radius:10px;box-shadow:0 2px 6px rgba(0,0,0,.1);overflow:hidden;text-align:center;transition:transform .18s;cursor:default;padding-bottom:18px}
-  .produto:hover{transform:scale(1.03)}
-  .produto img{width:100%;height:180px;object-fit:cover}
-  .produto h3{color:var(--verde);margin:12px 0 6px 0}
-  .produto p{padding:0 12px 12px;color:#666;min-height:42px}
-  button{background:var(--verde);color:#fff;border:none;padding:8px 12px;border-radius:8px;cursor:pointer;font-weight:700}
-  button.small{padding:6px 8px;font-size:.9rem;border-radius:6px}
-  button.danger{background:#e04b4b}
-  table{border-collapse:collapse;width:100%;max-width:600px;margin:0 auto 20px;background:#fff;border-radius:10px;overflow:hidden;box-shadow:0 2px 6px rgba(0,0,0,.1)}
-  th,td{border:1px solid #ccc;padding:8px;text-align:center}
-  th{background:var(--verde);color:#fff}
-  .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:32px;background:#111;color:#fff;padding:12px 18px;border-radius:10px;box-shadow:0 6px 20px rgba(0,0,0,.3);z-index:1200;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s}
-  .toast.show{opacity:1;transform:translateX(-50%) translateY(-6px);pointer-events:auto}
-  #carrinhoBtn{position:fixed;right:20px;bottom:20px;background:var(--verde);color:#fff;border-radius:50%;width:60px;height:60px;border:none;font-size:22px;box-shadow:0 8px 20px rgba(0,0,0,.25);cursor:pointer}
-  .catalogo-empty{text-align:center;padding:40px;color:#666}
-  .modal{display:none;position:fixed;z-index:1100;left:0;top:0;width:100%;height:100%;background:rgba(0,0,0,.45);align-items:center;justify-content:center;padding:20px}
-  .modal.show{display:flex}
-  .modal-card{background:#fff;border-radius:12px;padding:20px;max-width:520px;width:100%;box-shadow:0 12px 30px rgba(0,0,0,.25);position:relative}
-  .close{position:absolute;right:14px;top:10px;font-size:20px;color:var(--verde);cursor:pointer;font-weight:700}
-  .close:hover{color:var(--verde-esc)}
-  input[type="email"]{width:100%;padding:8px;border-radius:6px;border:1px solid #ddd}
-  .status-ok{color:var(--verde);font-weight:700}
-  .status-no{color:#e04b4b;font-weight:700}
+:root{--verde:#2e8b57;--fundo:#fffaf0}
+body{font-family:Roboto, sans-serif;background:var(--fundo);color:#222;margin:0}
+header,footer{background:var(--verde);color:#fff;padding:12px;text-align:center}
+.cats{display:flex;gap:8px;justify-content:center;padding:18px}
+.cat-btn{padding:8px 12px;border:2px solid var(--verde);background:#fff;color:var(--verde);border-radius:8px;cursor:pointer}
+.cat-btn.active{background:var(--verde);color:#fff}
+.subcats{display:flex;gap:8px;justify-content:center;margin-bottom:12px}
+.subcat-btn{padding:6px 10px;border-radius:8px;border:2px solid var(--verde);background:#fff;color:var(--verde);cursor:pointer}
+.catalogo{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:18px;padding:12px}
+.produto{background:#fff;border-radius:10px;padding:12px;box-shadow:0 2px 6px rgba(0,0,0,.08);text-align:center}
+button.small{padding:6px 10px;border-radius:8px;background:var(--verde);color:#fff;border:none;cursor:pointer}
+table{width:100%;border-collapse:collapse;margin:12px auto}
+th,td{padding:8px;border:1px solid #ddd;text-align:center}
+th{background:var(--verde);color:#fff}
+.modal{display:none;position:fixed;left:0;top:0;width:100%;height:100%;background:rgba(0,0,0,.45);align-items:center;justify-content:center}
+.modal.show{display:flex}
+.modal-card{background:#fff;padding:18px;border-radius:10px;width:92%;max-width:560px}
+.close{position:absolute;right:18px;top:12px;color:var(--verde);font-weight:700;cursor:pointer}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:20px;background:#111;color:#fff;padding:8px 12px;border-radius:8px;opacity:0;pointer-events:none}
+.toast.show{opacity:1;pointer-events:auto}
 </style>
 </head>
 <body>
-<header>
-  <h1>Catálogo Bumerangue</h1>
-  <nav>
-    <a href="index.html">Início</a>
-    <a href="catalogo.html" class="active">Catálogo</a>
-    <a href="sobre.html">Sobre</a>
-    <a href="contato.html">Contato</a>
-  </nav>
-</header>
+<header><h1>Catálogo Bumerangue</h1></header>
 
-<main>
-  <div class="top-controls">
-    <h2 style="color:var(--verde);margin:0">Nossas Bebidas e Produtos</h2>
-    <div class="cats" id="catsContainer"></div>
-    <div id="subcatsWrapper" style="width:100%;display:flex;justify-content:center">
-      <div class="subcats" id="subcatsContainer"></div>
-    </div>
-  </div>
+<div class="cats" id="cats"></div>
+<div class="subcats" id="subcats"></div>
 
-  <!-- tabela fixa de preços -->
-  <div id="priceTableContainer" style="display:none;">
-    <table>
-      <thead><tr><th>Tamanho</th><th>Preço</th></tr></thead>
-      <tbody>
-        <tr><td>280ml</td><td>R$ 30</td></tr>
-        <tr><td>500ml</td><td>R$ 55</td></tr>
-        <tr><td>750ml</td><td>R$ 80</td></tr>
-        <tr><td>1L</td><td>R$ 100</td></tr>
-      </tbody>
-    </table>
-  </div>
+<!-- tabela de preço exibida quando Bebidas ativa -->
+<div id="priceWrapper" style="display:none;text-align:center;padding:0 12px">
+  <table style="max-width:600px">
+    <thead><tr><th>Tamanho</th><th>Preço</th></tr></thead>
+    <tbody>
+      <tr><td>280ml</td><td>R$ 30</td></tr>
+      <tr><td>500ml</td><td>R$ 55</td></tr>
+      <tr><td>750ml</td><td>R$ 80</td></tr>
+      <tr><td>1L</td><td>R$ 100</td></tr>
+    </tbody>
+  </table>
+</div>
 
-  <div id="catalogo" class="catalogo"></div>
-</main>
+<div class="catalogo" id="catalogo"></div>
 
-<footer>
-  <p>&copy; 2025 Bumerangue - Bebidas Artesanais</p>
-</footer>
-
-<!-- Modal produto -->
-<div id="produtoModal" class="modal">
+<!-- Modal Produto -->
+<div id="produtoModal" class="modal" aria-hidden="true">
   <div class="modal-card">
-    <span class="close" id="closeProduto">&times;</span>
-    <h2 id="modalNome">Produto</h2>
-    <p id="modalDescricao" style="color:#666;margin-bottom:10px;"></p>
+    <span class="close" id="closeProduto">×</span>
+    <h2 id="modalNome"></h2>
+    <p id="modalDesc" style="color:#666"></p>
     <table>
-      <thead><tr><th>Tamanho</th><th>Disponibilidade</th><th>Ação</th></tr></thead>
+      <thead><tr><th>Tamanho</th><th> — </th></tr></thead>
       <tbody id="modalTabela"></tbody>
     </table>
   </div>
 </div>
 
-<!-- Modal carrinho -->
-<div id="carrinhoModal" class="modal">
-  <div class="modal-card">
-    <span class="close" id="closeCarrinho">&times;</span>
-    <h2>Seu Carrinho</h2>
-    <div id="itensCarrinho" style="margin-top:10px"></div>
-    <p id="totalCarrinho" style="font-weight:700;margin-top:10px"></p>
-    <label style="display:block;margin-top:8px">Seu e-mail</label>
-    <input id="emailCliente" type="email" placeholder="seu@email.com" style="margin-top:6px">
-    <div style="display:flex;gap:8px;margin-top:12px">
-      <button id="finalizarPedido" style="flex:1">Finalizar pedido</button>
-      <button id="limparCarrinho" class="danger" style="flex:1">Limpar</button>
-    </div>
-  </div>
-</div>
-
-<button id="carrinhoBtn">🛒</button>
-<div id="toast" class="toast"></div>
+<div class="toast" id="toast"></div>
+<footer style="margin-top:36px;padding:12px;text-align:center;color:#fff;background:var(--verde)">&copy; 2025 Bumerangue</footer>
 
 <script>
-const SHEET_ID = "19c63mlSybEumd2qgRciqTOzuXtCs_5eYEa5jXTylKyQ";
+/* CONFIG: substitua pelo URL do seu Apps Script após deploy */
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw3pMUyN1Q_cHMw__39m4Z9bxhgerQikj8_tOBPaUULgD3WBszDCLfySV-61bLgBKx-1Q/exec"; // <<-- substitua
+const SHEET_ID = "19c63mlSybEumd2qgRciqTOzuXtCs_5eYEa5jXTylKyQ"; // opcional, usado pelo opensheet
 const SUBS_BY_CAT = {
   "Bebidas": ["Releitura dos Clássicos","Frutas","Sabores Brasileiros"],
   "Doces": ["Doces"],
   "Sabonetes": ["Sabonetes"]
 };
 const PRECO_POR_TAMANHO = { "280ml":30, "500ml":55, "750ml":80, "1L":100 };
-const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwIjG3LEZt_xi0U8Wj0x0C_H-8rkb92nIkXA6uNpBiydGj-aQ4ro4N9BTtQfW42Czi_Ng/exec";
 
-let produtosAtuais = [];
-let carrinho = JSON.parse(localStorage.getItem("carrinhoBumerangue")) || [];
+/* estado */
+let produtosAtuais = []; // carregados da aba
+let categoriaAtiva = null;
+let subcatAtiva = null;
 
-const catsContainer = document.getElementById('catsContainer');
-const subcatsContainer = document.getElementById('subcatsContainer');
-const priceTableContainer = document.getElementById('priceTableContainer');
-const catalogoDiv = document.getElementById('catalogo');
+/* refs */
+const catsEl = document.getElementById('cats');
+const subcatsEl = document.getElementById('subcats');
+const catalogEl = document.getElementById('catalogo');
+const priceWrapper = document.getElementById('priceWrapper');
 const produtoModal = document.getElementById('produtoModal');
 const modalNome = document.getElementById('modalNome');
-const modalDescricao = document.getElementById('modalDescricao');
+const modalDesc = document.getElementById('modalDesc');
 const modalTabela = document.getElementById('modalTabela');
-const toastEl = document.getElementById('toast');
-const carrinhoModal = document.getElementById('carrinhoModal');
-const itensCarrinhoDiv = document.getElementById('itensCarrinho');
-const totalCarrinhoP = document.getElementById('totalCarrinho');
-const emailClienteInput = document.getElementById('emailCliente');
+const toast = document.getElementById('toast');
 
-function showToast(msg,t=2500){toastEl.textContent=msg;toastEl.classList.add('show');clearTimeout(window._toastTimer);window._toastTimer=setTimeout(()=>toastEl.classList.remove('show'),t);}
-function salvarCarrinho(){localStorage.setItem('carrinhoBumerangue',JSON.stringify(carrinho));}
+function showToast(msg, t=1800){toast.textContent=msg;toast.classList.add('show');clearTimeout(window._to);window._to=setTimeout(()=>toast.classList.remove('show'),t);}
 
-function renderCategorias(){
-  catsContainer.innerHTML='';
-  Object.keys(SUBS_BY_CAT).forEach((cat,idx)=>{
-    const b=document.createElement('button');
-    b.className='cat-btn';
-    b.textContent=cat;
-    b.onclick=()=>selecionarCategoria(cat,b);
-    catsContainer.appendChild(b);
-    if(idx===0)b.click();
+/* Render categorias principais */
+function renderCats(){
+  catsEl.innerHTML='';
+  Object.keys(SUBS_BY_CAT).forEach((cat, idx) => {
+    const b=document.createElement('button'); b.textContent=cat; b.className='cat-btn';
+    b.onclick = ()=> { selectCat(cat, b); };
+    catsEl.appendChild(b);
+    if(idx===0) setTimeout(()=>b.click(),0);
   });
 }
 
-function selecionarCategoria(cat,btn){
+function selectCat(cat, btn){
   document.querySelectorAll('.cat-btn').forEach(x=>x.classList.remove('active'));
   btn.classList.add('active');
-  const subs=SUBS_BY_CAT[cat]||[];
-  subcatsContainer.innerHTML='';
-  if(cat==="Bebidas"){priceTableContainer.style.display='block';}
-  else{priceTableContainer.style.display='none';}
+  categoriaAtiva = cat;
+  // price table visible only for Bebidas
+  priceWrapper.style.display = (cat === 'Bebidas') ? 'block' : 'none';
+  // render subcats (if exists)
+  const subs = SUBS_BY_CAT[cat] || [];
+  subcatsEl.innerHTML = '';
   if(subs.length){
-    subs.forEach((s,i)=>{
-      const sb=document.createElement('button');
-      sb.className='subcat-btn';
-      sb.textContent=s;
-      sb.onclick=()=>selecionarSubcategoria(s,sb);
-      subcatsContainer.appendChild(sb);
-      if(i===0)sb.click();
+    subs.forEach((s, i)=>{
+      const sb=document.createElement('button'); sb.textContent=s; sb.className='subcat-btn';
+      sb.onclick = ()=> { selectSubcat(s, sb); };
+      subcatsEl.appendChild(sb);
+      if(i===0) setTimeout(()=>sb.click(),0);
     });
-  }else carregarAba(cat);
+  } else {
+    carregarAba(cat);
+  }
 }
 
-function selecionarSubcategoria(sub,sb){
+function selectSubcat(sub, btn){
   document.querySelectorAll('.subcat-btn').forEach(x=>x.classList.remove('active'));
-  sb.classList.add('active');
+  btn.classList.add('active');
+  subcatAtiva = sub;
   carregarAba(sub);
 }
 
+/* Carrega a aba via opensheet.elk.sh (read-only) */
 async function carregarAba(sheetName){
-  catalogoDiv.innerHTML='<div class="catalogo-empty">⏳ Carregando...</div>';
+  catalogEl.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:#666">⏳ Carregando...</div>';
   try{
-    const url=`https://opensheet.elk.sh/${SHEET_ID}/${encodeURIComponent(sheetName)}`;
-    const resp=await fetch(url);
-    const dados=await resp.json();
-    produtosAtuais=dados.map(d=>({nome:d.Nome||d.nome,descricao:d.Descricao||d.descricao,imagem:d.Imagem||d.imagem,...d}));
+    const url = `https://opensheet.elk.sh/${SHEET_ID}/${encodeURIComponent(sheetName)}`;
+    const resp = await fetch(url);
+    if(!resp.ok) throw new Error('Erro ao carregar planilha');
+    const dados = await resp.json();
+    // normalizar
+    produtosAtuais = (dados||[]).map(d => {
+      return {
+        _raw: d,
+        nome: d.Nome||d.nome||d.Produto||d.produto||'Sem nome',
+        descricao: d.Descricao||d.descricao||'',
+        imagem: d.Imagem||d.imagem||'',
+        '280ml': Number(d['280ml']||d['280']||0),
+        '500ml': Number(d['500ml']||d['500']||0),
+        '750ml': Number(d['750ml']||d['750']||0),
+        '1L': Number(d['1L']||d['1l']||d['1000ml']||0),
+        'nao_engarrafado': Number(d['nao_engarrafado']||d['Não engarrafado']||d['nao engarrafado']||0),
+        sheet: sheetName
+      };
+    });
     renderCatalogo();
-  }catch(e){catalogoDiv.innerHTML='<div class="catalogo-empty">Erro ao carregar.</div>';}
+  }catch(err){
+    console.error(err);
+    catalogEl.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:#c00">Erro ao carregar.</div>';
+  }
 }
 
+/* Renderiza cards (usando apenas nao_engarrafado como quantidade total) */
 function renderCatalogo(){
-  catalogoDiv.innerHTML='';
-  produtosAtuais.forEach((p)=>{
-    const el=document.createElement('div');
-    el.className='produto';
-    el.innerHTML=`
-      <img src="${p.imagem||'https://via.placeholder.com/400x200?text=Sem+imagem'}">
-      <h3>${p.nome||'Sem nome'}</h3>
-      <p>${p.descricao||''}</p>
+  catalogEl.innerHTML = '';
+  produtosAtuais.forEach(p => {
+    const el = document.createElement('div'); el.className='produto';
+    el.innerHTML = `
+      <img src="${p.imagem||'https://via.placeholder.com/400x200?text=Sem+imagem'}" alt="" style="width:100%;height:140px;object-fit:cover;border-radius:8px">
+      <h3 style="color:var(--verde)">${p.nome}</h3>
+      <p style="min-height:36px;color:#666">${p.descricao||''}</p>
     `;
-    const btn=document.createElement('button');
-    btn.textContent='Ver detalhes';
-    btn.onclick=()=>abrirModalProduto(p);
+    const btn = document.createElement('button'); btn.className='small'; btn.textContent='Ver detalhes';
+    btn.onclick = ()=> openModalProduto(p);
     el.appendChild(btn);
-    catalogoDiv.appendChild(el);
+    catalogEl.appendChild(el);
   });
 }
 
-function abrirModalProduto(produto) {
-  modalNome.textContent = produto.nome;
-  modalDescricao.textContent = produto.descricao || '';
+/* Modal: mostra apenas uma tabela com tamanhos e o controle "não engarrafado" que representa o total */
+function openModalProduto(prod){
+  modalNome.textContent = prod.nome;
+  modalDesc.textContent = prod.descricao || '';
   modalTabela.innerHTML = '';
 
-  const tamanhos = [
-    { label: "280ml", valorL: 0.28 },
-    { label: "500ml", valorL: 0.5 },
-    { label: "750ml", valorL: 0.75 },
-    { label: "1L", valorL: 1.0 }
-  ];
-
-  // calcular volume total
-  let naoEng = Number(produto['nao_engarrafado'] || produto['Não engarrafado'] || 0);
-  let volumeTotal = naoEng;
+  // tabela com os tamanhos (apenas rótulo — disponibilidade removida)
+  const tamanhos = ["280ml","500ml","750ml","1L"];
   tamanhos.forEach(t => {
-    const qtd = Number(produto[t.label] || 0);
-    volumeTotal += qtd * t.valorL;
-  });
-
-  // tabela principal (engarrafado)
-  tamanhos.forEach(t => {
-    const qtd = Number(produto[t.label] || 0);
-    const disponivel = qtd > 0;
     modalTabela.insertAdjacentHTML('beforeend', `
       <tr>
-        <td>${t.label}</td>
-        <td class="${disponivel ? 'status-ok' : 'status-no'}">
-          ${disponivel ? `${qtd} un.` : 'Indisponível'}
+        <td>${t}</td>
+        <td>
+          <button class="small" onclick='engarrafarPadrao("${escapeJson(prod.nome)}","${t}", "${prod.sheet}")'>Usar ${t}</button>
         </td>
-        <td>${disponivel ? `<button class="small" onclick='adicionarCarrinho("${produto.nome}","${t.label}")'>Adicionar</button>` : ''}</td>
       </tr>
     `);
   });
 
-  // --- Bloco do "Não engarrafado" ---
-  const tamanhosPadrao = [
-    { label: "280ml", valorL: 0.28, preco: PRECO_POR_TAMANHO["280ml"] },
-    { label: "500ml", valorL: 0.5, preco: PRECO_POR_TAMANHO["500ml"] },
-    { label: "750ml", valorL: 0.75, preco: PRECO_POR_TAMANHO["750ml"] },
-    { label: "1L", valorL: 1, preco: PRECO_POR_TAMANHO["1L"] }
-  ];
+  // bloco NAO ENGARRAFADO (quantidade total)
+  const totalLitros = Number(prod['nao_engarrafado'] || 0);
+  modalTabela.insertAdjacentHTML('beforeend', `
+    <tr>
+      <td colspan="2" style="text-align:left;padding:10px">
+        <strong>Não engarrafado:</strong> ${totalLitros.toFixed(2)} L disponíveis
+        <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap">
+          <button class="small" data-tam="0.28" onclick='prepararNaoEng("${escapeJson(prod.nome)}",0.28,"${prod.sheet}", ${totalLitros})'>280ml</button>
+          <button class="small" data-tam="0.5" onclick='prepararNaoEng("${escapeJson(prod.nome)}",0.5,"${prod.sheet}", ${totalLitros})'>500ml</button>
+          <button class="small" data-tam="0.75" onclick='prepararNaoEng("${escapeJson(prod.nome)}",0.75,"${prod.sheet}", ${totalLitros})'>750ml</button>
+          <button class="small" data-tam="1" onclick='prepararNaoEng("${escapeJson(prod.nome)}",1,"${prod.sheet}", ${totalLitros})'>1L</button>
+        </div>
+      </td>
+    </tr>
+  `);
 
-  let html = `
-    <tr><td colspan="3" style="text-align:left;padding:10px;">
-      <strong>Não engarrafado:</strong> ${volumeTotal.toFixed(2)} L disponíveis<br>
-      <div id="opcoesTamanhos" style="margin-top:8px;display:flex;flex-wrap:wrap;gap:6px;">
-  `;
-
-  tamanhosPadrao.forEach(op => {
-    const desabilitar = op.valorL > volumeTotal;
-    html += `<button class="small" ${desabilitar ? 'disabled' : ''} 
-      data-tam="${op.valorL}" data-label="${op.label}" data-preco="${op.preco}" 
-      onclick="selecionarTamanhoNaoEng(this,'${produto.nome}')">${op.label}</button>`;
-  });
-
-  html += `</div></td></tr>`;
-  modalTabela.insertAdjacentHTML('beforeend', html);
-
-  // Guardar produto ativo
-  window.produtoAtivoNE = { nome: produto.nome, volumeTotal, produto };
   produtoModal.classList.add('show');
 }
 
-function selecionarTamanhoNaoEng(btn, nomeProduto) {
-  document.querySelectorAll('#opcoesTamanhos button').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
+/* escapador simples para strings com aspas no HTML inlined */
+function escapeJson(s){
+  return String(s).replace(/"/g,'\\"').replace(/'/g,"\\'");
+}
 
-  const tamanho = parseFloat(btn.dataset.tam);
-  const label = btn.dataset.label;
-  const precoUnit = parseFloat(btn.dataset.preco);
+/* Engarrafar usando o estoque total: chama o Apps Script para reduzir o valor na planilha */
+async function prepararNaoEng(nome, litros, sheetName, totalDisponivel){
+  // perguntar quantas garrafas
+  let qtd = prompt(`Quantidade de garrafas de ${formatLitros(litros)} que deseja (disponível ${totalDisponivel} L)?`, "1");
+  if(!qtd) return;
+  qtd = parseInt(qtd);
+  if(isNaN(qtd) || qtd <= 0){ showToast('Quantidade inválida'); return; }
+  const totalLitros = +(qtd * litros).toFixed(3);
+  if(totalLitros > totalDisponivel){ showToast('Volume insuficiente'); return; }
 
-  const produto = window.produtoAtivoNE.produto;
-  let volumeDisponivel = window.produtoAtivoNE.volumeTotal;
+  // confirmar
+  if(!confirm(`Adicionar ${qtd} x ${formatLitros(litros)} (${totalLitros} L) ao carrinho?`)) return;
 
-  // verificar se há volume suficiente
-  if (tamanho > volumeDisponivel) {
-    showToast('Volume insuficiente');
-    return;
+  // calcular preco por unidade
+  const precoUnit = PRECO_POR_TAMANHO[convertLabel(litros)] || 0;
+  for(let i=0;i<qtd;i++){
+    // adicionar ao carrinho localmente (para UX rápida)
+    const nomeItem = nome + ` (${formatLitros(litros)})`;
+    const preco = precoUnit;
+    adicionarAoCarrinhoLocal(nomeItem, formatLabel(litros), preco);
   }
 
-  // reduzir no engarrafado também
-  const correspondencia = { "280ml": 0.28, "500ml": 0.5, "750ml": 0.75, "1L": 1 };
-  const engKeys = Object.keys(correspondencia);
-  for (const k of engKeys) {
-    const valL = correspondencia[k];
-    let qtd = Number(produto[k] || 0);
-    while (qtd > 0 && tamanho >= valL && tamanho >= 0.001) {
-      tamanho -= valL;
-      qtd--;
-      produto[k] = qtd; // reduz unidade engarrafada usada
+  // chamar Apps Script para reduzir o valor na planilha
+  try{
+    const body = { action: "reduce", sheet: sheetName, nome: nome, reduzir_litros: totalLitros };
+    const resp = await fetch(APPS_SCRIPT_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+    const data = await resp.json();
+    if(data && data.success){
+      showToast('Estoque atualizado na planilha');
+      // recarregar aba para atualizar UI
+      carregarAba(sheetName);
+      produtoModal.classList.remove('show');
+    } else {
+      console.error(data);
+      showToast('Erro ao atualizar planilha');
     }
-  }
-
-  // reduzir volume total
-  const novoVolume = +(volumeDisponivel - parseFloat(btn.dataset.tam)).toFixed(2);
-  produto['nao_engarrafado'] = Math.max(0, novoVolume);
-  window.produtoAtivoNE.volumeTotal = novoVolume;
-
-  // adicionar ao carrinho
-  const preco = precoUnit;
-  carrinho.push({ nome: nomeProduto, tamanho: `${btn.dataset.label} (engarrafado manualmente)`, preco });
-  salvarCarrinho();
-  produtoModal.classList.remove('show');
-  showToast(`Adicionado (${btn.dataset.label})`);
-
-  renderCatalogo();
+  }catch(err){ console.error(err); showToast('Erro ao conectar ao Apps Script'); }
 }
 
-
-
-// Adicionar produto "não engarrafado"
-function adicionarNaoEngarrafado(nome, litros, disponivelTotal, produtoId){
-  if (litros > disponivelTotal) { showToast('Quantidade acima do disponível'); return; }
-  const precoBase = PRECO_POR_TAMANHO["500ml"] / 0.5; // preço por litro
-  const preco = Math.round(precoBase * litros);
-  carrinho.push({ nome, tamanho: `${litros}L (não engarrafado)`, preco });
-  salvarCarrinho();
-  produtoModal.classList.remove('show');
-  showToast(`Adicionado (${litros} L)`);
-
-  // Atualiza estoque local
-  const p = produtosAtuais.find(x => x.nome === nome);
-  if (p) p['nao_engarrafado'] = +(disponivelTotal - litros).toFixed(2);
-  renderCatalogo();
+/* Engarrafar padrão (usar a unidade já engarrafada se existir) — agora removemos disponibilidade,
+   então vamos redirecionar o usuário para usar o bloco "Não engarrafado" (porque a única fonte de verdade é total)
+*/
+function engarrafarPadrao(nome, label, sheetName){
+  showToast('Use o bloco "Não engarrafado" para gerenciar estoque total (engarrafado + não engarrafado).');
 }
 
-
-
-function adicionarCarrinho(nome,tamanho){
-  const preco=PRECO_POR_TAMANHO[tamanho]||0;
-  carrinho.push({nome,tamanho,preco});
-  salvarCarrinho();
-  produtoModal.classList.remove('show');
-  showToast('Adicionado ao carrinho!');
+/* utilidade: converte valor (0.28) para label (280ml) */
+function convertLabel(valor){
+  if(valor === 0.28) return '280ml';
+  if(valor === 0.5) return '500ml';
+  if(valor === 0.75) return '750ml';
+  if(valor === 1) return '1L';
+  return `${valor}L`;
+}
+function formatLabel(valor){
+  return convertLabel(valor);
+}
+function formatLitros(valor){
+  if(valor >= 1) return `${valor} L`;
+  return `${Math.round(valor*1000)} ml`;
 }
 
-function abrirCarrinho(){
-  itensCarrinhoDiv.innerHTML='';
-  if(!carrinho.length){itensCarrinhoDiv.innerHTML='<p class="small-muted">Carrinho vazio.</p>';totalCarrinhoP.textContent='';carrinhoModal.classList.add('show');return;}
-  let total=0;
-  carrinho.forEach((c,i)=>{total+=c.preco;itensCarrinhoDiv.insertAdjacentHTML('beforeend',`<p>${c.nome} (${c.tamanho}) - R$ ${c.preco} <button class="small danger" onclick="removerItem(${i})">X</button></p>`);});
-  totalCarrinhoP.textContent=`Total: R$ ${total}`;
-  carrinhoModal.classList.add('show');
+/* adiciona ao carrinho local (apenas localStorage e UX) */
+function adicionarAoCarrinhoLocal(nome, tamanho, preco){
+  const carrinho = JSON.parse(localStorage.getItem('carrinhoBumerangue')||'[]');
+  carrinho.push({ nome, tamanho, preco });
+  localStorage.setItem('carrinhoBumerangue', JSON.stringify(carrinho));
 }
 
-function removerItem(i){carrinho.splice(i,1);salvarCarrinho();abrirCarrinho();showToast('Item removido');}
-document.getElementById('limparCarrinho').onclick=()=>{if(confirm('Limpar carrinho?')){carrinho=[];salvarCarrinho();abrirCarrinho();}};
-document.getElementById('finalizarPedido').onclick=async()=>{const email=emailClienteInput.value.trim();if(!email){showToast('Informe seu e-mail');return;}if(!carrinho.length){showToast('Carrinho vazio');return;}const payload=carrinho.map(c=>({nome:c.nome,tamanho:c.tamanho,preco:c.preco}));payload[0].email=email;await fetch(APPS_SCRIPT_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});showToast('Pedido enviado!');carrinho=[];salvarCarrinho();abrirCarrinho();};
-document.getElementById('closeProduto').onclick=()=>produtoModal.classList.remove('show');
-document.getElementById('closeCarrinho').onclick=()=>carrinhoModal.classList.remove('show');
-document.getElementById('carrinhoBtn').onclick=abrirCarrinho;
+/* modal close */
+document.getElementById('closeProduto').onclick = ()=> produtoModal.classList.remove('show');
 
-renderCategorias();
-salvarCarrinho();
+/* init */
+renderCats();
 </script>
 </body>
 </html>
