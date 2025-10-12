@@ -101,9 +101,9 @@ th{background:var(--verde);color:#fff}
 <footer style="margin-top:36px;padding:12px;text-align:center;color:#fff;background:var(--verde)">&copy; 2025 Bumerangue</footer>
 
 <script>
-/* CONFIG: substitua pelo URL do seu Apps Script após deploy */
-const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw3pMUyN1Q_cHMw__39m4Z9bxhgerQikj8_tOBPaUULgD3WBszDCLfySV-61bLgBKx-1Q/exec"; // <<-- substitua
-const SHEET_ID = "19c63mlSybEumd2qgRciqTOzuXtCs_5eYEa5jXTylKyQ"; // opcional, usado pelo opensheet
+/* CONFIG */
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw3pMUyN1Q_cHMw__39m4Z9bxhgerQikj8_tOBPaUULgD3WBszDCLfySV-61bLgBKx-1Q/exec"; // substitua após publicar
+const SHEET_ID = "19c63mlSybEumd2qgRciqTOzuXtCs_5eYEa5jXTylKyQ";
 const SUBS_BY_CAT = {
   "Bebidas": ["Releitura dos Clássicos","Frutas","Sabores Brasileiros"],
   "Doces": ["Doces"],
@@ -111,12 +111,10 @@ const SUBS_BY_CAT = {
 };
 const PRECO_POR_TAMANHO = { "280ml":30, "500ml":55, "750ml":80, "1L":100 };
 
-/* estado */
-let produtosAtuais = []; // carregados da aba
+let produtosAtuais = [];
 let categoriaAtiva = null;
 let subcatAtiva = null;
 
-/* refs */
 const catsEl = document.getElementById('cats');
 const subcatsEl = document.getElementById('subcats');
 const catalogEl = document.getElementById('catalogo');
@@ -125,16 +123,24 @@ const produtoModal = document.getElementById('produtoModal');
 const modalNome = document.getElementById('modalNome');
 const modalDesc = document.getElementById('modalDesc');
 const modalTabela = document.getElementById('modalTabela');
+const modalTotal = document.getElementById('modalTotal');
 const toast = document.getElementById('toast');
 
-function showToast(msg, t=1800){toast.textContent=msg;toast.classList.add('show');clearTimeout(window._to);window._to=setTimeout(()=>toast.classList.remove('show'),t);}
+function showToast(msg, t=1800){
+  toast.textContent=msg;
+  toast.classList.add('show');
+  clearTimeout(window._to);
+  window._to=setTimeout(()=>toast.classList.remove('show'),t);
+}
 
-/* Render categorias principais */
+/* Categorias principais */
 function renderCats(){
   catsEl.innerHTML='';
-  Object.keys(SUBS_BY_CAT).forEach((cat, idx) => {
-    const b=document.createElement('button'); b.textContent=cat; b.className='cat-btn';
-    b.onclick = ()=> { selectCat(cat, b); };
+  Object.keys(SUBS_BY_CAT).forEach((cat, idx)=>{
+    const b=document.createElement('button');
+    b.textContent=cat;
+    b.className='cat-btn';
+    b.onclick=()=>selectCat(cat,b);
     catsEl.appendChild(b);
     if(idx===0) setTimeout(()=>b.click(),0);
   });
@@ -144,234 +150,123 @@ function selectCat(cat, btn){
   document.querySelectorAll('.cat-btn').forEach(x=>x.classList.remove('active'));
   btn.classList.add('active');
   categoriaAtiva = cat;
-  // price table visible only for Bebidas
   priceWrapper.style.display = (cat === 'Bebidas') ? 'block' : 'none';
-  // render subcats (if exists)
   const subs = SUBS_BY_CAT[cat] || [];
-  subcatsEl.innerHTML = '';
+  subcatsEl.innerHTML='';
   if(subs.length){
-    subs.forEach((s, i)=>{
-      const sb=document.createElement('button'); sb.textContent=s; sb.className='subcat-btn';
-      sb.onclick = ()=> { selectSubcat(s, sb); };
+    subs.forEach((s,i)=>{
+      const sb=document.createElement('button');
+      sb.textContent=s;
+      sb.className='subcat-btn';
+      sb.onclick=()=>selectSubcat(s,sb);
       subcatsEl.appendChild(sb);
       if(i===0) setTimeout(()=>sb.click(),0);
     });
-  } else {
-    carregarAba(cat);
-  }
+  }else carregarAba(cat);
 }
 
-function selectSubcat(sub, btn){
+function selectSubcat(sub,btn){
   document.querySelectorAll('.subcat-btn').forEach(x=>x.classList.remove('active'));
   btn.classList.add('active');
-  subcatAtiva = sub;
+  subcatAtiva=sub;
   carregarAba(sub);
 }
 
-/* Carrega a aba via opensheet.elk.sh (read-only) */
+/* Carrega aba (planilha já no novo formato) */
 async function carregarAba(sheetName){
-  catalogEl.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:#666">⏳ Carregando...</div>';
+  catalogEl.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:40px;color:#666">⏳ Carregando...</div>';
   try{
-    const url = `https://opensheet.elk.sh/${SHEET_ID}/${encodeURIComponent(sheetName)}`;
-    const resp = await fetch(url);
+    const url=`https://opensheet.elk.sh/${SHEET_ID}/${encodeURIComponent(sheetName)}`;
+    const resp=await fetch(url);
     if(!resp.ok) throw new Error('Erro ao carregar planilha');
-    const dados = await resp.json();
-    // normalizar
-    produtosAtuais = (dados||[]).map(d => {
-      return {
-        _raw: d,
-        nome: d.Nome||d.nome||d.Produto||d.produto||'Sem nome',
-        descricao: d.Descricao||d.descricao||'',
-        imagem: d.Imagem||d.imagem||'',
-        '280ml': Number(d['280ml']||d['280']||0),
-        '500ml': Number(d['500ml']||d['500']||0),
-        '750ml': Number(d['750ml']||d['750']||0),
-        '1L': Number(d['1L']||d['1l']||d['1000ml']||0),
-        'nao_engarrafado': Number(d['nao_engarrafado']||d['Não engarrafado']||d['nao engarrafado']||0),
-        sheet: sheetName
-      };
-    });
+    const dados=await resp.json();
+    produtosAtuais=(dados||[]).map(d=>({
+      nome:d.nome||d.Nome||'Sem nome',
+      descricao:d.descricao||d.Descrição||'',
+      imagem:d.imagem||d.Imagem||'',
+      total:Number(d.total||d.Total||0),
+      sheet:sheetName
+    }));
     renderCatalogo();
   }catch(err){
     console.error(err);
-    catalogEl.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:#c00">Erro ao carregar.</div>';
+    catalogEl.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:40px;color:#c00">Erro ao carregar.</div>';
   }
 }
 
-/* Renderiza cards (usando apenas nao_engarrafado como quantidade total) */
+/* Render cards */
 function renderCatalogo(){
-  catalogEl.innerHTML = '';
-  produtosAtuais.forEach(p => {
-    const el = document.createElement('div'); el.className='produto';
-    el.innerHTML = `
-      <img src="${p.imagem||'https://via.placeholder.com/400x200?text=Sem+imagem'}" alt="" style="width:100%;height:140px;object-fit:cover;border-radius:8px">
+  catalogEl.innerHTML='';
+  produtosAtuais.forEach(p=>{
+    const el=document.createElement('div');
+    el.className='produto';
+    el.innerHTML=`
+      <img src="${p.imagem||'https://via.placeholder.com/400x200?text=Sem+imagem'}"
+           alt="" style="width:100%;height:140px;object-fit:cover;border-radius:8px">
       <h3 style="color:var(--verde)">${p.nome}</h3>
       <p style="min-height:36px;color:#666">${p.descricao||''}</p>
+      <button class="small" onclick='openModalProduto(${JSON.stringify(p)})'>Ver detalhes</button>
     `;
-    const btn = document.createElement('button'); btn.className='small'; btn.textContent='Ver detalhes';
-    btn.onclick = ()=> openModalProduto(p);
-    el.appendChild(btn);
     catalogEl.appendChild(el);
   });
 }
 
-/* Modal: mostra apenas uma tabela com tamanhos e o controle "não engarrafado" que representa o total */
+/* Modal produto */
 function openModalProduto(prod){
-  modalNome.textContent = prod.nome;
-  modalDesc.textContent = prod.descricao || '';
-  modalTabela.innerHTML = '';
+  modalNome.textContent=prod.nome;
+  modalDesc.textContent=prod.descricao||'';
+  modalTabela.innerHTML='';
+  modalTotal.textContent=`Total disponível: ${prod.total.toFixed(2)} L`;
 
-  const totalLitros = Number(prod['nao_engarrafado'] || 0);
-  document.getElementById('modalTotal').textContent = `Total disponível: ${totalLitros.toFixed(2)} L`;
-
-  const tamanhos = ["280ml","500ml","750ml","1L"];
-  tamanhos.forEach(t => {
-    const valorL = t === "1L" ? 1 : parseFloat(t) / 1000;
-    const preco = PRECO_POR_TAMANHO[t] || 0;
-    const desabilitar = valorL > totalLitros;
-
-    modalTabela.insertAdjacentHTML('beforeend', `
+  const tamanhos=["280ml","500ml","750ml","1L"];
+  tamanhos.forEach(t=>{
+    const valorL = t==="1L"?1:parseFloat(t)/1000;
+    const preco = PRECO_POR_TAMANHO[t]||0;
+    const desabilitar = valorL>prod.total;
+    modalTabela.insertAdjacentHTML('beforeend',`
       <tr>
         <td>${t}</td>
-        <td><input type="number" min="1" value="1" step="1" id="qtd-${t}" style="width:60px"></td>
+        <td><input type="number" id="qtd-${t}" min="1" value="1" step="1" style="width:60px"></td>
         <td>
           <button class="small" ${desabilitar?'disabled':''}
-            onclick='engarrafar("${escapeJson(prod.nome)}","${t}",${valorL},"${prod.sheet}")'>
+            onclick='engarrafar("${escapeJson(prod.nome)}","${t}",${valorL},"${prod.sheet}",${prod.total})'>
             Adicionar
           </button>
         </td>
-      </tr>
-    `);
+      </tr>`);
   });
 
   produtoModal.classList.add('show');
 }
 
-/* Permite fechar o modal */
-document.getElementById('closeProduto').onclick = () => produtoModal.classList.remove('show');
-produtoModal.onclick = e => { 
-  if (e.target === produtoModal) produtoModal.classList.remove('show'); 
-};
-
-
-async function engarrafar(nome, label, valorL, sheetName){
-  const qtd = parseInt(document.getElementById(`qtd-${label}`).value);
-  if(isNaN(qtd) || qtd <= 0) { showToast('Quantidade inválida'); return; }
-  const totalLitros = +(qtd * valorL).toFixed(3);
-
-  // confirmar
-  if(!confirm(`Adicionar ${qtd} x ${label} (${totalLitros} L) ao carrinho e reduzir estoque?`)) return;
-
-  // calcular preço total
-  const precoUnit = PRECO_POR_TAMANHO[label] || 0;
-  for(let i=0;i<qtd;i++){
-    adicionarAoCarrinhoLocal(nome, label, precoUnit);
-  }
-
-  // chamar Apps Script para reduzir na planilha
+/* Reduz total direto na planilha */
+async function engarrafar(nome,label,valorL,sheetName,totalDisponivel){
+  const qtd=parseInt(document.getElementById(`qtd-${label}`).value);
+  if(isNaN(qtd)||qtd<=0){showToast('Quantidade inválida');return;}
+  const litros=qtd*valorL;
+  if(litros>totalDisponivel){showToast('Volume insuficiente');return;}
+  if(!confirm(`Adicionar ${qtd} x ${label} (${litros.toFixed(2)} L) e atualizar planilha?`))return;
   try{
-    const body = { action: "reduce", sheet: sheetName, nome, reduzir_litros: totalLitros };
-    const resp = await fetch(APPS_SCRIPT_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body)
-    });
-    const data = await resp.json();
-    if(data && data.success){
-      showToast(`Estoque atualizado: ${data.new_value.toFixed(2)} L restantes`);
+    const body={action:"reduce",sheet:sheetName,nome, reduzir_litros:litros};
+    const r=await fetch(APPS_SCRIPT_URL,{method:"POST",headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    const d=await r.json();
+    if(d&&d.success){
+      showToast(`Novo total: ${d.new_value.toFixed(2)} L`);
       produtoModal.classList.remove('show');
       carregarAba(sheetName);
-    } else {
-      showToast('Erro ao atualizar planilha');
-      console.error(data);
+    }else{
+      console.error(d);showToast('Erro ao atualizar planilha');
     }
-  }catch(err){ showToast('Falha na conexão com o servidor'); console.error(err); }
+  }catch(err){console.error(err);showToast('Erro de conexão');}
 }
 
+/* utilidades */
+function escapeJson(s){return String(s).replace(/"/g,'\\"').replace(/'/g,"\\'");}
+document.getElementById('closeProduto').onclick=()=>produtoModal.classList.remove('show');
+produtoModal.onclick=e=>{if(e.target===produtoModal)produtoModal.classList.remove('show');};
 
-/* escapador simples para strings com aspas no HTML inlined */
-function escapeJson(s){
-  return String(s).replace(/"/g,'\\"').replace(/'/g,"\\'");
-}
-
-/* Engarrafar usando o estoque total: chama o Apps Script para reduzir o valor na planilha */
-async function prepararNaoEng(nome, litros, sheetName, totalDisponivel){
-  // perguntar quantas garrafas
-  let qtd = prompt(`Quantidade de garrafas de ${formatLitros(litros)} que deseja (disponível ${totalDisponivel} L)?`, "1");
-  if(!qtd) return;
-  qtd = parseInt(qtd);
-  if(isNaN(qtd) || qtd <= 0){ showToast('Quantidade inválida'); return; }
-  const totalLitros = +(qtd * litros).toFixed(3);
-  if(totalLitros > totalDisponivel){ showToast('Volume insuficiente'); return; }
-
-  // confirmar
-  if(!confirm(`Adicionar ${qtd} x ${formatLitros(litros)} (${totalLitros} L) ao carrinho?`)) return;
-
-  // calcular preco por unidade
-  const precoUnit = PRECO_POR_TAMANHO[convertLabel(litros)] || 0;
-  for(let i=0;i<qtd;i++){
-    // adicionar ao carrinho localmente (para UX rápida)
-    const nomeItem = nome + ` (${formatLitros(litros)})`;
-    const preco = precoUnit;
-    adicionarAoCarrinhoLocal(nomeItem, formatLabel(litros), preco);
-  }
-
-  // chamar Apps Script para reduzir o valor na planilha
-  try{
-    const body = { action: "reduce", sheet: sheetName, nome: nome, reduzir_litros: totalLitros };
-    const resp = await fetch(APPS_SCRIPT_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body)
-    });
-    const data = await resp.json();
-    if(data && data.success){
-      showToast('Estoque atualizado na planilha');
-      // recarregar aba para atualizar UI
-      carregarAba(sheetName);
-      produtoModal.classList.remove('show');
-    } else {
-      console.error(data);
-      showToast('Erro ao atualizar planilha');
-    }
-  }catch(err){ console.error(err); showToast('Erro ao conectar ao Apps Script'); }
-}
-
-/* Engarrafar padrão (usar a unidade já engarrafada se existir) — agora removemos disponibilidade,
-   então vamos redirecionar o usuário para usar o bloco "Não engarrafado" (porque a única fonte de verdade é total)
-*/
-function engarrafarPadrao(nome, label, sheetName){
-  showToast('Use o bloco "Não engarrafado" para gerenciar estoque total (engarrafado + não engarrafado).');
-}
-
-/* utilidade: converte valor (0.28) para label (280ml) */
-function convertLabel(valor){
-  if(valor === 0.28) return '280ml';
-  if(valor === 0.5) return '500ml';
-  if(valor === 0.75) return '750ml';
-  if(valor === 1) return '1L';
-  return `${valor}L`;
-}
-function formatLabel(valor){
-  return convertLabel(valor);
-}
-function formatLitros(valor){
-  if(valor >= 1) return `${valor} L`;
-  return `${Math.round(valor*1000)} ml`;
-}
-
-/* adiciona ao carrinho local (apenas localStorage e UX) */
-function adicionarAoCarrinhoLocal(nome, tamanho, preco){
-  const carrinho = JSON.parse(localStorage.getItem('carrinhoBumerangue')||'[]');
-  carrinho.push({ nome, tamanho, preco });
-  localStorage.setItem('carrinhoBumerangue', JSON.stringify(carrinho));
-}
-
-/* modal close */
-document.getElementById('closeProduto').onclick = ()=> produtoModal.classList.remove('show');
-
-/* init */
 renderCats();
+
 </script>
 </body>
 </html>
