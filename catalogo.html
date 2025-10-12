@@ -183,37 +183,75 @@ function openModalProduto(prod){
   modalDesc.textContent = prod.descricao || '';
   modalTabela.innerHTML = '';
 
-  // tabela com os tamanhos (apenas rótulo — disponibilidade removida)
   const tamanhos = ["280ml","500ml","750ml","1L"];
+  const totalLitros = Number(prod['nao_engarrafado'] || 0);
+
   tamanhos.forEach(t => {
+    const valorL = t === "1L" ? 1 : parseFloat(t) / 1000;
+    const preco = PRECO_POR_TAMANHO[t] || 0;
+    const desabilitar = valorL > totalLitros;
+
     modalTabela.insertAdjacentHTML('beforeend', `
       <tr>
         <td>${t}</td>
         <td>
-          <button class="small" onclick='engarrafarPadrao("${escapeJson(prod.nome)}","${t}", "${prod.sheet}")'>Usar ${t}</button>
+          <input type="number" min="1" value="1" step="1" id="qtd-${t}" style="width:60px">
+        </td>
+        <td>
+          <button class="small" ${desabilitar?'disabled':''}
+            onclick='engarrafar("${escapeJson(prod.nome)}","${t}",${valorL},"${prod.sheet}")'>
+            Adicionar
+          </button>
         </td>
       </tr>
     `);
   });
 
-  // bloco NAO ENGARRAFADO (quantidade total)
-  const totalLitros = Number(prod['nao_engarrafado'] || 0);
   modalTabela.insertAdjacentHTML('beforeend', `
     <tr>
-      <td colspan="2" style="text-align:left;padding:10px">
-        <strong>Não engarrafado:</strong> ${totalLitros.toFixed(2)} L disponíveis
-        <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap">
-          <button class="small" data-tam="0.28" onclick='prepararNaoEng("${escapeJson(prod.nome)}",0.28,"${prod.sheet}", ${totalLitros})'>280ml</button>
-          <button class="small" data-tam="0.5" onclick='prepararNaoEng("${escapeJson(prod.nome)}",0.5,"${prod.sheet}", ${totalLitros})'>500ml</button>
-          <button class="small" data-tam="0.75" onclick='prepararNaoEng("${escapeJson(prod.nome)}",0.75,"${prod.sheet}", ${totalLitros})'>750ml</button>
-          <button class="small" data-tam="1" onclick='prepararNaoEng("${escapeJson(prod.nome)}",1,"${prod.sheet}", ${totalLitros})'>1L</button>
-        </div>
+      <td colspan="3" style="text-align:left;padding:10px;">
+        <strong>Total disponível:</strong> ${totalLitros.toFixed(2)} L
       </td>
     </tr>
   `);
 
   produtoModal.classList.add('show');
 }
+
+async function engarrafar(nome, label, valorL, sheetName){
+  const qtd = parseInt(document.getElementById(`qtd-${label}`).value);
+  if(isNaN(qtd) || qtd <= 0) { showToast('Quantidade inválida'); return; }
+  const totalLitros = +(qtd * valorL).toFixed(3);
+
+  // confirmar
+  if(!confirm(`Adicionar ${qtd} x ${label} (${totalLitros} L) ao carrinho e reduzir estoque?`)) return;
+
+  // calcular preço total
+  const precoUnit = PRECO_POR_TAMANHO[label] || 0;
+  for(let i=0;i<qtd;i++){
+    adicionarAoCarrinhoLocal(nome, label, precoUnit);
+  }
+
+  // chamar Apps Script para reduzir na planilha
+  try{
+    const body = { action: "reduce", sheet: sheetName, nome, reduzir_litros: totalLitros };
+    const resp = await fetch(APPS_SCRIPT_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+    const data = await resp.json();
+    if(data && data.success){
+      showToast(`Estoque atualizado: ${data.new_value.toFixed(2)} L restantes`);
+      produtoModal.classList.remove('show');
+      carregarAba(sheetName);
+    } else {
+      showToast('Erro ao atualizar planilha');
+      console.error(data);
+    }
+  }catch(err){ showToast('Falha na conexão com o servidor'); console.error(err); }
+}
+
 
 /* escapador simples para strings com aspas no HTML inlined */
 function escapeJson(s){
