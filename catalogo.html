@@ -23,6 +23,33 @@ th{background:var(--verde);color:#fff}
 .close{position:absolute;right:18px;top:12px;color:var(--verde);font-weight:700;cursor:pointer}
 .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:20px;background:#111;color:#fff;padding:8px 12px;border-radius:8px;opacity:0;pointer-events:none}
 .toast.show{opacity:1;pointer-events:auto}
+
+.modal { 
+  display:none; position:fixed; inset:0; 
+  background:rgba(0,0,0,0.45); 
+  align-items:center; justify-content:center; 
+  z-index:1000; 
+}
+.modal.show { display:flex; }
+.modal-card { 
+  background:#fff; padding:20px; 
+  border-radius:10px; width:90%; 
+  max-width:560px; position:relative; 
+}
+.modal-header { 
+  display:flex; justify-content:space-between; 
+  align-items:center; margin-bottom:8px;
+}
+.modal-total { 
+  color:#2e8b57; font-weight:bold; font-size:14px;
+}
+.modal-card .close { 
+  position:absolute; right:14px; top:8px; 
+  font-size:22px; font-weight:bold; 
+  color:#2e8b57; cursor:pointer;
+}
+
+
 </style>
 </head>
 <body>
@@ -50,14 +77,25 @@ th{background:var(--verde);color:#fff}
 <div id="produtoModal" class="modal" aria-hidden="true">
   <div class="modal-card">
     <span class="close" id="closeProduto">×</span>
-    <h2 id="modalNome"></h2>
+    <div class="modal-header">
+      <h2 id="modalNome"></h2>
+      <span id="modalTotal" class="modal-total"></span>
+    </div>
     <p id="modalDesc" style="color:#666"></p>
     <table>
-      <thead><tr><th>Tamanho</th><th> — </th></tr></thead>
+      <thead>
+        <tr>
+          <th>Tamanho</th>
+          <th>Quantidade</th>
+          <th>Ação</th>
+        </tr>
+      </thead>
       <tbody id="modalTabela"></tbody>
     </table>
   </div>
 </div>
+
+
 
 <div class="toast" id="toast"></div>
 <footer style="margin-top:36px;padding:12px;text-align:center;color:#fff;background:var(--verde)">&copy; 2025 Bumerangue</footer>
@@ -183,9 +221,10 @@ function openModalProduto(prod){
   modalDesc.textContent = prod.descricao || '';
   modalTabela.innerHTML = '';
 
-  const tamanhos = ["280ml","500ml","750ml","1L"];
   const totalLitros = Number(prod['nao_engarrafado'] || 0);
+  document.getElementById('modalTotal').textContent = `Total disponível: ${totalLitros.toFixed(2)} L`;
 
+  const tamanhos = ["280ml","500ml","750ml","1L"];
   tamanhos.forEach(t => {
     const valorL = t === "1L" ? 1 : parseFloat(t) / 1000;
     const preco = PRECO_POR_TAMANHO[t] || 0;
@@ -194,9 +233,7 @@ function openModalProduto(prod){
     modalTabela.insertAdjacentHTML('beforeend', `
       <tr>
         <td>${t}</td>
-        <td>
-          <input type="number" min="1" value="1" step="1" id="qtd-${t}" style="width:60px">
-        </td>
+        <td><input type="number" min="1" value="1" step="1" id="qtd-${t}" style="width:60px"></td>
         <td>
           <button class="small" ${desabilitar?'disabled':''}
             onclick='engarrafar("${escapeJson(prod.nome)}","${t}",${valorL},"${prod.sheet}")'>
@@ -207,16 +244,15 @@ function openModalProduto(prod){
     `);
   });
 
-  modalTabela.insertAdjacentHTML('beforeend', `
-    <tr>
-      <td colspan="3" style="text-align:left;padding:10px;">
-        <strong>Total disponível:</strong> ${totalLitros.toFixed(2)} L
-      </td>
-    </tr>
-  `);
-
   produtoModal.classList.add('show');
 }
+
+/* Permite fechar o modal */
+document.getElementById('closeProduto').onclick = () => produtoModal.classList.remove('show');
+produtoModal.onclick = e => { 
+  if (e.target === produtoModal) produtoModal.classList.remove('show'); 
+};
+
 
 async function engarrafar(nome, label, valorL, sheetName){
   const qtd = parseInt(document.getElementById(`qtd-${label}`).value);
