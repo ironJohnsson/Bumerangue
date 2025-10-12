@@ -49,6 +49,52 @@ th{background:var(--verde);color:#fff}
   color:#2e8b57; cursor:pointer;
 }
 
+.carrinho-btn {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: var(--verde);
+  color: white;
+  border-radius: 50%;
+  width: 56px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 22px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+  z-index: 999;
+  transition: all 0.3s;
+}
+.carrinho-btn:hover { transform: scale(1.1); }
+
+.carrinho-painel {
+  position: fixed;
+  right: -400px;
+  top: 0;
+  width: 350px;
+  height: 100%;
+  background: #fff;
+  box-shadow: -2px 0 8px rgba(0,0,0,0.3);
+  transition: right 0.3s;
+  z-index: 998;
+  display: flex;
+  flex-direction: column;
+}
+.carrinho-painel.show { right: 0; }
+
+.carrinho-header, .carrinho-footer {
+  padding: 12px;
+  border-bottom: 1px solid #ccc;
+}
+.carrinho-header { display: flex; justify-content: space-between; align-items: center; }
+.carrinho-itens { flex: 1; overflow-y: auto; padding: 10px; }
+.carrinho-itens div { margin-bottom: 8px; font-size: 14px; }
+.carrinho-footer { border-top: 1px solid #ccc; border-bottom: none; }
+.close { background: none; border: none; font-size: 24px; cursor: pointer; }
+
+
 
 </style>
 </head>
@@ -74,7 +120,25 @@ th{background:var(--verde);color:#fff}
 <div class="catalogo" id="catalogo"></div>
 
 <!-- Modal Produto -->
-<div id="produtoModal" class="modal" aria-hidden="true">
+<header><h1>Catálogo Bumerangue</h1></header>
+
+<!-- Carrinho Flutuante -->
+<div id="carrinho-btn" class="carrinho-btn">
+  <i class="fa fa-shopping-cart"></i>
+</div>
+
+<!-- Painel do Carrinho -->
+<div id="carrinho-painel" class="carrinho-painel">
+  <div class="carrinho-header">
+    <h3>Seu Carrinho</h3>
+    <button id="fechar-carrinho" class="close">&times;</button>
+  </div>
+  <div id="itens-carrinho" class="carrinho-itens"></div>
+  <div class="carrinho-footer">
+    <p><strong>Total:</strong> R$ <span id="total-carrinho">0,00</span></p>
+    <button id="enviar-pedido">Enviar Pedido</button>
+  </div>
+</div>
   <div class="modal-card">
     <span class="close" id="closeProduto">×</span>
     <div class="modal-header">
@@ -241,24 +305,113 @@ function openModalProduto(prod){
 
 /* Reduz total direto na planilha */
 async function engarrafar(nome,label,valorL,sheetName,totalDisponivel){
-  const qtd=parseInt(document.getElementById(`qtd-${label}`).value);
-  if(isNaN(qtd)||qtd<=0){showToast('Quantidade inválida');return;}
-  const litros=qtd*valorL;
-  if(litros>totalDisponivel){showToast('Volume insuficiente');return;}
-  if(!confirm(`Adicionar ${qtd} x ${label} (${litros.toFixed(2)} L) e atualizar planilha?`))return;
-  try{
-    const body={action:"reduce",sheet:sheetName,nome, reduzir_litros:litros};
-    const r=await fetch(APPS_SCRIPT_URL,{method:"POST",headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
-    const d=await r.json();
-    if(d&&d.success){
-      showToast(`Novo total: ${d.new_value.toFixed(2)} L`);
+  const qtd = parseInt(document.getElementById(`qtd-${label}`).value);
+  if(isNaN(qtd)||qtd<=0){ showToast('Quantidade inválida'); return; }
+  const litros = +(qtd * valorL).toFixed(3);
+  if(litros > totalDisponivel){ showToast('Volume insuficiente'); return; }
+
+  // Atualizar diretamente na planilha (sem confirmação nem carrinho)
+  try {
+    const body = { action: "reduce", sheet: sheetName, nome, reduzir_litros: litros };
+    const resp = await fetch(APPS_SCRIPT_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+    const data = await resp.json();
+
+    if (data && data.success) {
+      showToast(`Novo total: ${data.new_value.toFixed(2)} L`);
       produtoModal.classList.remove('show');
       carregarAba(sheetName);
-    }else{
-      console.error(d);showToast('Erro ao atualizar planilha');
+    } else {
+      console.error(data);
+      showToast('Erro ao atualizar planilha');
     }
-  }catch(err){console.error(err);showToast('Erro de conexão');}
+  } catch (err) {
+    console.error(err);
+    showToast('Erro de conexão');
+  }
 }
+
+/* ==== CARRINHO ==== */
+let carrinho = JSON.parse(localStorage.getItem("carrinho")) || [];
+
+const carrinhoBtn = document.getElementById("carrinho-btn");
+const carrinhoPainel = document.getElementById("carrinho-painel");
+const fecharCarrinho = document.getElementById("fechar-carrinho");
+const itensCarrinho = document.getElementById("itens-carrinho");
+const totalCarrinho = document.getElementById("total-carrinho");
+
+carrinhoBtn.onclick = () => carrinhoPainel.classList.add("show");
+fecharCarrinho.onclick = () => carrinhoPainel.classList.remove("show");
+
+function atualizarCarrinho() {
+  itensCarrinho.innerHTML = "";
+  let total = 0;
+  carrinho.forEach((item, i) => {
+    const div = document.createElement("div");
+    const preco = (PRECO_POR_TAMANHO[item.tamanho] || 0) * item.qtd;
+    total += preco;
+    div.innerHTML = `
+      ${item.nome} (${item.tamanho}) — ${item.qtd}x = R$ ${preco.toFixed(2)}
+      <button onclick="removerItem(${i})">🗑️</button>
+    `;
+    itensCarrinho.appendChild(div);
+  });
+  totalCarrinho.textContent = total.toFixed(2);
+  localStorage.setItem("carrinho", JSON.stringify(carrinho));
+}
+
+function removerItem(i) {
+  carrinho.splice(i, 1);
+  atualizarCarrinho();
+}
+
+function adicionarAoCarrinho(produto, tamanho, qtd) {
+  const existente = carrinho.find(
+    p => p.nome === produto.nome && p.tamanho === tamanho
+  );
+  if (existente) existente.qtd += qtd;
+  else carrinho.push({ nome: produto.nome, tamanho, qtd });
+  atualizarCarrinho();
+  showToast("Adicionado ao carrinho");
+}
+
+/* Modificar função engarrafar */
+async function engarrafar(nome,label,valorL,sheetName,totalDisponivel){
+  const qtd=parseInt(document.getElementById(`qtd-${label}`).value);
+  if(isNaN(qtd)||qtd<=0){ showToast('Quantidade inválida'); return; }
+  const litros=qtd*valorL;
+  if(litros>totalDisponivel){ showToast('Volume insuficiente'); return; }
+
+  adicionarAoCarrinho({ nome, sheet: sheetName }, label, qtd);
+
+  // Atualizar na planilha
+  try {
+    const body={action:"reduce",sheet:sheetName,nome, reduzir_litros:litros};
+    const r=await fetch(APPS_SCRIPT_URL,{
+      method:"POST",
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(body)
+    });
+    const d=await r.json();
+    if(d && d.success){
+      produtoModal.classList.remove('show');
+      carregarAba(sheetName);
+    }
+  } catch(err) {
+    console.error(err);
+    showToast('Erro de conexão');
+  }
+}
+
+atualizarCarrinho();
+
+
+
+
+
 
 /* utilidades */
 function escapeJson(s){return String(s).replace(/"/g,'\\"').replace(/'/g,"\\'");}
