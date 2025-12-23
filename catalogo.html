@@ -24,26 +24,15 @@ table.price th{background:var(--verde);color:#fff}
 .produto img{width:100%;height:160px;object-fit:cover;border-radius:6px}
 .produto h3{color:var(--verde);margin:10px 0 6px 0}
 .product-btn{background:var(--verde);color:#fff;border:none;padding:8px 12px;border-radius:8px;cursor:pointer;font-weight:700}
-
-/* modal */
 .modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);align-items:center;justify-content:center;z-index:1200}
 .modal.show{display:flex}
 .modal-card{background:#fff;border-radius:10px;padding:18px;max-width:720px;width:96%;position:relative}
 .modal-card .close{position:absolute;right:12px;top:8px;font-size:20px;color:var(--verde);cursor:pointer;font-weight:700}
 .modal-header{display:flex;justify-content:space-between;align-items:flex-start}
 .modal-total{color:var(--verde);font-weight:700;margin-left:12px}
-
-/* modal table */
 .modal-table{width:100%;border-collapse:collapse;margin-top:12px}
 .modal-table th,.modal-table td{border:1px solid #e6e6e6;padding:10px;text-align:center}
 .modal-table th{background:var(--verde);color:#fff}
-
-/* carrinho */
-.carrinho-btn{position:fixed;right:20px;bottom:20px;background:var(--verde);color:#fff;border-radius:50%;width:58px;height:58px;display:flex;align-items:center;justify-content:center;z-index:1300;cursor:pointer;box-shadow:0 8px 20px rgba(0,0,0,.2)}
-.carrinho-painel{position:fixed;right:-380px;top:0;height:100%;width:360px;background:#fff;box-shadow:-4px 0 12px rgba(0,0,0,.2);transition:right .28s;z-index:1299;display:flex;flex-direction:column}
-.carrinho-painel.show{right:0}
-
-/* toast */
 .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:26px;background:#111;color:#fff;padding:10px 14px;border-radius:10px;opacity:0;pointer-events:none;transition:opacity .18s}
 .toast.show{opacity:1;pointer-events:auto}
 </style>
@@ -60,11 +49,9 @@ table.price th{background:var(--verde);color:#fff}
 </header>
 
 <main>
-
-  <!-- CATEGORIAS GERAIS (DESATIVADAS) -->
+  <!-- categorias gerais desativadas -->
   <!-- <div class="cats" id="catsContainer"></div> -->
 
-  <!-- SUBCATEGORIAS DE BEBIDAS -->
   <div class="subcats" id="subcatsContainer"></div>
 
   <div id="priceWrapper">
@@ -82,7 +69,6 @@ table.price th{background:var(--verde);color:#fff}
   <div id="catalogo" class="catalogo"></div>
 </main>
 
-<!-- Modal -->
 <div id="produtoModal" class="modal">
   <div class="modal-card">
     <span class="close" id="closeProduto">&times;</span>
@@ -106,11 +92,17 @@ table.price th{background:var(--verde);color:#fff}
 const APPS_SCRIPT_URL = "https://script.google.com/macros/library/d/10rQQX5O0AFMHb9QgpXZd7MHr6BS7OlwR0fJB1KAds_qAptRc0VjbV8TU/5";
 const SHEET_ID = "19c63mlSybEumd2qgRciqTOzuXtCs_5eYEa5jXTylKyQ";
 
+/* 🔧 CORREÇÃO APLICADA AQUI */
 const SUBS_BY_CAT = {
-  "Bebidas": ["Releitura dos Clássicos","Frutas","Sabores Brasileiros"]
+  "Bebidas": [
+    { label: "Releitura dos Clássicos", sheet: "Releitura dos Clássicos" },
+    { label: "Frutas", sheet: "Frutas" },
+    { label: "Sabores Brasileiros", sheet: "Sabores Brasileiros" }
+  ]
+
   /*
-  ,"Doces": ["Doces"],
-  "Sabonetes": ["Sabonetes"]
+  ,"Doces": [{ label: "Doces", sheet: "Doces" }],
+  "Sabonetes": [{ label: "Sabonetes", sheet: "Sabonetes" }]
   */
 };
 
@@ -134,14 +126,14 @@ function showToast(msg){
 
 function renderSubcatsFor(cat){
   subcatsContainer.innerHTML='';
-  SUBS_BY_CAT[cat].forEach((s,i)=>{
+  SUBS_BY_CAT[cat].forEach((item,i)=>{
     const b=document.createElement('button');
     b.className='subcat-btn';
-    b.textContent=s;
+    b.textContent=item.label;
     b.onclick=()=>{
       document.querySelectorAll('.subcat-btn').forEach(x=>x.classList.remove('active'));
       b.classList.add('active');
-      carregarAba(s);
+      carregarAba(item.sheet);
     };
     subcatsContainer.appendChild(b);
     if(i===0) b.click();
@@ -149,7 +141,7 @@ function renderSubcatsFor(cat){
 }
 
 async function carregarAba(sheet){
-  catalogo.innerHTML='Carregando...';
+  catalogo.innerHTML='⏳ Carregando...';
   const url=`https://opensheet.elk.sh/${SHEET_ID}/${encodeURIComponent(sheet)}`;
   const r=await fetch(url);
   const dados=await r.json();
@@ -217,6 +209,7 @@ async function baixar(i,l,t){
   carregarAba(p.sheet);
 }
 
+/* inicialização */
 renderSubcatsFor("Bebidas");
 </script>
 </body>
