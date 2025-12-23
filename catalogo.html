@@ -12,9 +12,9 @@ body{font-family:"Roboto",sans-serif;background:var(--fundo);color:#333;margin:0
 header{background:var(--verde);color:#fff;padding:18px;text-align:center}
 nav a{margin:0 10px;color:#fff;text-decoration:none;font-weight:700}
 main{padding:18px}
-.cats,.subcats{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-bottom:10px}
-.cat-btn,.subcat-btn{padding:8px 12px;border-radius:8px;border:2px solid var(--verde);background:#fff;color:var(--verde);cursor:pointer;font-weight:700}
-.cat-btn.active,.subcat-btn.active{background:var(--verde);color:#fff}
+.subcats{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-bottom:10px}
+.subcat-btn{padding:8px 12px;border-radius:8px;border:2px solid var(--verde);background:#fff;color:var(--verde);cursor:pointer;font-weight:700}
+.subcat-btn.active{background:var(--verde);color:#fff}
 #priceWrapper{max-width:760px;margin:0 auto 18px;text-align:center}
 table.price{width:100%;max-width:600px;margin:0 auto;border-collapse:collapse}
 table.price th,table.price td{padding:10px;border:1px solid #dcdcdc;text-align:center}
@@ -42,33 +42,32 @@ table.price th{background:var(--verde);color:#fff}
 .carrinho-btn{position:fixed;right:20px;bottom:20px;background:var(--verde);color:#fff;border-radius:50%;width:58px;height:58px;display:flex;align-items:center;justify-content:center;z-index:1300;cursor:pointer;box-shadow:0 8px 20px rgba(0,0,0,.2)}
 .carrinho-painel{position:fixed;right:-380px;top:0;height:100%;width:360px;background:#fff;box-shadow:-4px 0 12px rgba(0,0,0,.2);transition:right .28s;z-index:1299;display:flex;flex-direction:column}
 .carrinho-painel.show{right:0}
-.carrinho-header,.carrinho-footer{padding:12px;border-bottom:1px solid #eee}
-.carrinho-itens{flex:1;overflow:auto;padding:10px}
-.carrinho-item{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid #f3f3f3}
-.carrinho-item button{background:transparent;border:none;color:#c00;cursor:pointer}
 
 /* toast */
 .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:26px;background:#111;color:#fff;padding:10px 14px;border-radius:10px;opacity:0;pointer-events:none;transition:opacity .18s}
 .toast.show{opacity:1;pointer-events:auto}
-@media (max-width:520px){ .modal-card{padding:12px} .carrinho-painel{width:100%} }
 </style>
 </head>
+
 <body>
 <header>
   <h1>Catálogo Bumerangue</h1>
   <nav>
     <a href="index.html">Início</a>
     <a href="catalogo.html">Catálogo</a>
-    <a href="sobre.html">Sobre</a>
     <a href="contato.html">Contato</a>
   </nav>
 </header>
 
 <main>
-  <div class="cats" id="catsContainer"></div>
+
+  <!-- CATEGORIAS GERAIS (DESATIVADAS) -->
+  <!-- <div class="cats" id="catsContainer"></div> -->
+
+  <!-- SUBCATEGORIAS DE BEBIDAS -->
   <div class="subcats" id="subcatsContainer"></div>
 
-  <div id="priceWrapper" style="display:none;">
+  <div id="priceWrapper">
     <table class="price">
       <thead><tr><th>Tamanho</th><th>Preço</th></tr></thead>
       <tbody>
@@ -83,62 +82,42 @@ table.price th{background:var(--verde);color:#fff}
   <div id="catalogo" class="catalogo"></div>
 </main>
 
-<!-- Modal produto -->
-<div id="produtoModal" class="modal" aria-hidden="true">
-  <div class="modal-card" role="dialog" aria-modal="true">
+<!-- Modal -->
+<div id="produtoModal" class="modal">
+  <div class="modal-card">
     <span class="close" id="closeProduto">&times;</span>
     <div class="modal-header">
       <div>
-        <h2 id="modalNome">Produto</h2>
-        <p id="modalDesc" style="color:#666;margin-top:6px"></p>
+        <h2 id="modalNome"></h2>
+        <p id="modalDesc"></p>
       </div>
-      <div class="modal-total" id="modalTotal">Total disponível: 0.00 L</div>
+      <div class="modal-total" id="modalTotal"></div>
     </div>
-
-    <table class="modal-table" aria-describedby="modalNome">
-      <thead><tr><th>Tamanho</th><th>Quantidade</th><th>Ação</th></tr></thead>
+    <table class="modal-table">
+      <thead><tr><th>Tamanho</th><th>Qtd</th><th>Ação</th></tr></thead>
       <tbody id="modalTabela"></tbody>
     </table>
   </div>
 </div>
 
-<!-- Carrinho -->
-<div class="carrinho-btn" id="carrinhoBtn" title="Ver carrinho">🛒</div>
-
-<div class="carrinho-painel" id="carrinhoPainel" aria-hidden="true">
-  <div class="carrinho-header">
-    <h3>Seu Carrinho</h3>
-    <button id="fecharCarrinho" class="close">&times;</button>
-  </div>
-  <div class="carrinho-itens" id="itensCarrinho"></div>
-  <div class="carrinho-footer">
-    <p><strong>Total:</strong> R$ <span id="totalCarrinho">0.00</span></p>
-    <button id="finalizarPedido" class="product-btn" style="width:100%;">Finalizar pedido</button>
-  </div>
-</div>
-
-<div id="toast" class="toast" role="status" aria-live="polite"></div>
+<div id="toast" class="toast"></div>
 
 <script>
-/* CONFIG - substitua o APPS_SCRIPT_URL pelo seu endpoint do Apps Script (após publicar) */
-const APPS_SCRIPT_URL = "COLE_AQUI_SEU_APPS_SCRIPT_URL"; // <-- coloque o /exec aqui
+const APPS_SCRIPT_URL = "https://script.google.com/macros/library/d/10rQQX5O0AFMHb9QgpXZd7MHr6BS7OlwR0fJB1KAds_qAptRc0VjbV8TU/5";
 const SHEET_ID = "19c63mlSybEumd2qgRciqTOzuXtCs_5eYEa5jXTylKyQ";
+
 const SUBS_BY_CAT = {
-  "Bebidas": ["Releitura dos Clássicos","Frutas","Sabores Brasileiros"],
-  "Doces": ["Doces"],
+  "Bebidas": ["Releitura dos Clássicos","Frutas","Sabores Brasileiros"]
+  /*
+  ,"Doces": ["Doces"],
   "Sabonetes": ["Sabonetes"]
+  */
 };
-const PRECO_POR_TAMANHO = { "280ml":30, "500ml":55, "750ml":80, "1L":100 };
 
-/* Estado */
-let produtosAtuais = []; // cada item: { nome, descricao, imagem, total, sheet }
-let carrinho = JSON.parse(localStorage.getItem('carrinhoBumerangue')||'[]');
+let produtosAtuais = [];
 
-/* Refs */
-const catsContainer = document.getElementById('catsContainer');
 const subcatsContainer = document.getElementById('subcatsContainer');
 const catalogo = document.getElementById('catalogo');
-const priceWrapper = document.getElementById('priceWrapper');
 const produtoModal = document.getElementById('produtoModal');
 const modalNome = document.getElementById('modalNome');
 const modalDesc = document.getElementById('modalDesc');
@@ -147,240 +126,98 @@ const modalTotal = document.getElementById('modalTotal');
 const closeProduto = document.getElementById('closeProduto');
 const toastEl = document.getElementById('toast');
 
-const carrinhoBtn = document.getElementById('carrinhoBtn');
-const carrinhoPainel = document.getElementById('carrinhoPainel');
-const fecharCarrinho = document.getElementById('fecharCarrinho');
-const itensCarrinho = document.getElementById('itensCarrinho');
-const totalCarrinhoSpan = document.getElementById('totalCarrinho');
-const finalizarPedidoBtn = document.getElementById('finalizarPedido');
-
-function showToast(msg, t=1800){ toastEl.textContent=msg; toastEl.classList.add('show'); clearTimeout(window._t); window._t=setTimeout(()=>toastEl.classList.remove('show'), t); }
-function salvarCarrinho(){ localStorage.setItem('carrinhoBumerangue', JSON.stringify(carrinho)); }
-
-/* --- categorias --- */
-function renderCategoryButtons(){
-  catsContainer.innerHTML = '';
-  Object.keys(SUBS_BY_CAT).forEach((cat, idx) => {
-    const b = document.createElement('button');
-    b.className = 'cat-btn';
-    b.textContent = cat;
-    b.onclick = () => {
-      document.querySelectorAll('.cat-btn').forEach(x=>x.classList.remove('active'));
-      b.classList.add('active');
-      renderSubcatsFor(cat);
-    };
-    catsContainer.appendChild(b);
-    if(idx===0) setTimeout(()=>b.click(),0);
-  });
+function showToast(msg){
+  toastEl.textContent=msg;
+  toastEl.classList.add('show');
+  setTimeout(()=>toastEl.classList.remove('show'),2000);
 }
 
 function renderSubcatsFor(cat){
-  subcatsContainer.innerHTML = '';
-  priceWrapper.style.display = (cat === 'Bebidas') ? 'block' : 'none';
-  const subs = SUBS_BY_CAT[cat] || [];
-  if(subs.length){
-    subs.forEach((s, i) => {
-      const sb = document.createElement('button');
-      sb.className = 'subcat-btn';
-      sb.textContent = s;
-      sb.onclick = () => {
-        document.querySelectorAll('.subcat-btn').forEach(x=>x.classList.remove('active'));
-        sb.classList.add('active');
-        carregarAba(s);
-      };
-      subcatsContainer.appendChild(sb);
-      if(i===0) setTimeout(()=>sb.click(),0);
-    });
-  } else {
-    carregarAba(cat);
-  }
-}
-
-/* --- carregar aba via opensheet (planilha no formato novo com coluna 'total') --- */
-async function carregarAba(sheetName){
-  catalogo.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:#666">⏳ Carregando...</div>';
-  try{
-    const url = `https://opensheet.elk.sh/${SHEET_ID}/${encodeURIComponent(sheetName)}`;
-    const resp = await fetch(url);
-    if(!resp.ok) throw new Error('Erro ao carregar planilha');
-    const dados = await resp.json();
-    produtosAtuais = (dados||[]).map(d => ({
-      nome: d.nome || d.Nome || d.Produto || 'Sem nome',
-      descricao: d.descricao || d.Descrição || d.Descricao || '',
-      imagem: d.imagem || d.Imagem || '',
-      total: Number(d.total || d.Total || 0),
-      sheet: sheetName
-    }));
-    renderCatalogo();
-  }catch(err){
-    console.error(err);
-    catalogo.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:#c00">Erro ao carregar.</div>';
-  }
-}
-
-/* --- render produtos --- */
-function renderCatalogo(){
-  catalogo.innerHTML = '';
-  produtosAtuais.forEach((p, idx) => {
-    const card = document.createElement('div');
-    card.className = 'produto';
-    card.innerHTML = `
-      <img src="${p.imagem || 'https://via.placeholder.com/400x200?text=Sem+imagem'}" alt="">
-      <h3>${p.nome}</h3>
-      <p style="min-height:36px;color:#666">${p.descricao||''}</p>
-      <button class="product-btn" data-idx="${idx}">Ver detalhes</button>
-    `;
-    catalogo.appendChild(card);
-  });
-  // attach handlers
-  document.querySelectorAll('.product-btn').forEach(b => {
-    b.onclick = () => {
-      const idx = Number(b.dataset.idx);
-      openModalProduto(idx);
+  subcatsContainer.innerHTML='';
+  SUBS_BY_CAT[cat].forEach((s,i)=>{
+    const b=document.createElement('button');
+    b.className='subcat-btn';
+    b.textContent=s;
+    b.onclick=()=>{
+      document.querySelectorAll('.subcat-btn').forEach(x=>x.classList.remove('active'));
+      b.classList.add('active');
+      carregarAba(s);
     };
+    subcatsContainer.appendChild(b);
+    if(i===0) b.click();
   });
 }
 
-/* --- modal --- */
-function openModalProduto(index){
-  const prod = produtosAtuais[index];
-  if(!prod) return;
-  modalNome.textContent = prod.nome;
-  modalDesc.textContent = prod.descricao || '';
-  modalTabela.innerHTML = '';
-  modalTotal.textContent = `Total disponível: ${prod.total.toFixed(2)} L`;
+async function carregarAba(sheet){
+  catalogo.innerHTML='Carregando...';
+  const url=`https://opensheet.elk.sh/${SHEET_ID}/${encodeURIComponent(sheet)}`;
+  const r=await fetch(url);
+  const dados=await r.json();
+  produtosAtuais=dados.map(d=>({
+    nome:d.nome,
+    descricao:d.descricao,
+    imagem:d.imagem,
+    total:Number(d.total),
+    sheet
+  }));
+  renderCatalogo();
+}
 
-  const tamanhos = ["280ml","500ml","750ml","1L"];
-  tamanhos.forEach(t => {
-    const valorL = (t === '1L') ? 1 : parseFloat(t) / 1000;
-    const disabled = valorL > prod.total;
-    // input id uses index to avoid collisions
-    const inputId = `qtd-${index}-${t.replace('ml','').replace('1L','1000')}`;
-    modalTabela.insertAdjacentHTML('beforeend', `
+function renderCatalogo(){
+  catalogo.innerHTML='';
+  produtosAtuais.forEach((p,i)=>{
+    catalogo.innerHTML+=`
+      <div class="produto">
+        <img src="${p.imagem}">
+        <h3>${p.nome}</h3>
+        <p>${p.descricao||''}</p>
+        <button class="product-btn" onclick="openModal(${i})">Ver detalhes</button>
+      </div>`;
+  });
+}
+
+function openModal(i){
+  const p=produtosAtuais[i];
+  modalNome.textContent=p.nome;
+  modalDesc.textContent=p.descricao;
+  modalTotal.textContent=`Total disponível: ${p.total} L`;
+  modalTabela.innerHTML='';
+  ["280ml","500ml","750ml","1L"].forEach(t=>{
+    const l=t==="1L"?1:parseInt(t)/1000;
+    modalTabela.innerHTML+=`
       <tr>
         <td>${t}</td>
-        <td><input type="number" id="${inputId}" min="1" value="1" style="width:70px"></td>
-        <td>
-          <button class="product-btn" ${disabled ? 'disabled' : ''} onclick="handleAdicionar(${index}, '${t}', ${valorL})">Adicionar</button>
-        </td>
-      </tr>
-    `);
+        <td><input id="q${t}" type="number" value="1" min="1"></td>
+        <td><button class="product-btn" onclick="baixar(${i},${l},'${t}')">Adicionar</button></td>
+      </tr>`;
   });
-
   produtoModal.classList.add('show');
-  // focus first input
-  setTimeout(()=> {
-    const firstInput = modalTabela.querySelector('input');
-    if(firstInput) firstInput.focus();
-  }, 50);
 }
 
-/* fechar modal (× ou clique fora) */
-closeProduto.onclick = () => produtoModal.classList.remove('show');
-produtoModal.addEventListener('click', (e) => { if(e.target === produtoModal) produtoModal.classList.remove('show'); });
+closeProduto.onclick=()=>produtoModal.classList.remove('show');
 
-/* --- adicionar (engarrafar) e atualizar planilha --- */
-async function handleAdicionar(prodIndex, label, valorL){
-  const inputId = `qtd-${prodIndex}-${label.replace('ml','').replace('1L','1000')}`;
-  const qtd = parseInt(document.getElementById(inputId).value, 10);
-  if(!qtd || qtd <= 0){ showToast('Quantidade inválida'); return; }
-  const litros = +(qtd * valorL).toFixed(3);
-  const produto = produtosAtuais[prodIndex];
-  if(litros > produto.total){ showToast('Volume insuficiente'); return; }
+async function baixar(i,l,t){
+  const qtd=parseInt(document.getElementById('q'+t).value);
+  const litros=qtd*l;
+  const p=produtosAtuais[i];
 
-  // adiciona ao carrinho localmente
-  adicionarAoCarrinho(produto.nombre || produto.nome, label, qtd, PRECO_POR_TAMANHO[label]||0);
-
-  // chama Apps Script para reduzir total na planilha (se APPS_SCRIPT_URL definido)
-  if(!APPS_SCRIPT_URL || APPS_SCRIPT_URL.includes('COLE_AQUI')) {
-    // não configurado: só atualiza UI local
-    produto.total = +(produto.total - litros).toFixed(3);
-    showToast('Adicionado ao carrinho (modo offline)');
-    produtoModal.classList.remove('show');
-    renderCatalogo();
-    return;
-  }
-
-  try{
-    const body = { action: "reduce", sheet: produto.sheet, nome: produto.nome, reduzir_litros: litros };
-    const resp = await fetch(APPS_SCRIPT_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body)
-    });
-    const data = await resp.json();
-    if(data && data.success){
-      // atualizar UI recarregando aba
-      showToast(`Adicionado. Novo total: ${data.new_value.toFixed(2)} L`);
-      produtoModal.classList.remove('show');
-      // recarregar aba para refletir valor do servidor
-      carregarAba(produto.sheet);
-    } else {
-      console.error(data);
-      showToast('Erro ao atualizar planilha');
-    }
-  }catch(err){
-    console.error(err);
-    showToast('Erro de conexão');
-    // mesmo com falha, manter item no carrinho (UX) - opcional
-  }
-}
-
-/* === CARRINHO === */
-const CAR_KEY = 'carrinhoBumerangue';
-
-function atualizarCarrinhoUI(){
-  itensCarrinho.innerHTML = '';
-  let total = 0;
-  carrinho.forEach((it, i) => {
-    const precoUnit = it.preco || (PRECO_POR_TAMANHO[it.tamanho] || 0);
-    const preco = precoUnit * it.qtd;
-    total += preco;
-    const div = document.createElement('div');
-    div.className = 'carrinho-item';
-    div.innerHTML = `<div><strong>${it.nome}</strong><br><small>${it.tamanho} · ${it.qtd}x</small></div>
-                     <div>R$ ${preco.toFixed(2)} <button onclick="removerItem(${i})">✖</button></div>`;
-    itensCarrinho.appendChild(div);
+  await fetch(APPS_SCRIPT_URL,{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({
+      action:'reduce',
+      sheet:p.sheet,
+      nome:p.nome,
+      reduzir_litros:litros
+    })
   });
-  totalCarrinhoSpan.textContent = total.toFixed(2);
-  salvarCarrinho();
+
+  showToast('Quantidade atualizada na planilha');
+  produtoModal.classList.remove('show');
+  carregarAba(p.sheet);
 }
 
-function adicionarAoCarrinho(nome, tamanho, qtd, precoUnit){
-  // nome may already be string
-  const existente = carrinho.find(i => i.nome === nome && i.tamanho === tamanho);
-  if(existente) existente.qtd += qtd;
-  else carrinho.push({ nome, tamanho, qtd, preco: precoUnit });
-  atualizarCarrinhoUI();
-  showToast('Adicionado ao carrinho');
-}
-
-function removerItem(i){
-  carrinho.splice(i,1);
-  atualizarCarrinhoUI();
-}
-
-/* abrir/fechar painel */
-carrinhoBtn.onclick = () => carrinhoPainel.classList.add('show');
-fecharCarrinho.onclick = () => carrinhoPainel.classList.remove('show');
-
-/* finalizar pedido (envia somente carrinho local por agora) */
-finalizarPedidoBtn.onclick = async () => {
-  if(!carrinho.length){ showToast('Carrinho vazio'); return; }
-  // aqui você pode integrar envio ao Apps Script ou outro endpoint
-  // atualmente só mostra toast e limpa (se quiser manter, comente a limpeza)
-  showToast('Pedido enviado (simulado)');
-  // limpar
-  carrinho = [];
-  salvarCarrinho();
-  atualizarCarrinhoUI();
-  carrinhoPainel.classList.remove('show');
-};
-
-/* inicialização */
-renderCategoryButtons();
-salvarCarrinho();
-atualizarCarrinhoUI();
+renderSubcatsFor("Bebidas");
 </script>
 </body>
 </html>
