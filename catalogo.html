@@ -1,154 +1,216 @@
 <!doctype html>
 <html lang="pt-BR">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Catálogo - Bumerangue</title>
-
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
-
 <style>
-:root{--verde:#2e8b57;--fundo:#fffaf0}
-body{font-family:Roboto;background:var(--fundo);margin:0}
-header{background:var(--verde);color:#fff;padding:16px;text-align:center}
-.catalogo{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;padding:20px}
-.produto{background:#fff;border-radius:10px;padding:12px;text-align:center;box-shadow:0 4px 10px rgba(0,0,0,.1)}
+:root{--verde:#2e8b57;--verde-esc:#256b46;--fundo:#fffaf0;--card:#f8f8f8}
+*{box-sizing:border-box}
+body{font-family:"Roboto",sans-serif;background:var(--fundo);color:#333;margin:0}
+header{background:var(--verde);color:#fff;padding:18px;text-align:center}
+nav a{margin:0 10px;color:#fff;text-decoration:none;font-weight:700}
+main{padding:18px}
+.subcats{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-bottom:10px}
+.subcat-btn{padding:8px 12px;border-radius:8px;border:2px solid var(--verde);background:#fff;color:var(--verde);cursor:pointer;font-weight:700}
+.subcat-btn.active{background:var(--verde);color:#fff}
+#priceWrapper{max-width:760px;margin:0 auto 18px;text-align:center}
+table.price{width:100%;max-width:600px;margin:0 auto;border-collapse:collapse}
+table.price th,table.price td{padding:10px;border:1px solid #dcdcdc;text-align:center}
+table.price th{background:var(--verde);color:#fff}
+.catalogo{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px}
+.produto{background:var(--card);border-radius:10px;padding:12px;box-shadow:0 2px 6px rgba(0,0,0,.08);text-align:center}
 .produto img{width:100%;height:160px;object-fit:cover;border-radius:6px}
-.product-btn{background:var(--verde);color:#fff;border:none;padding:8px 12px;border-radius:8px;cursor:pointer}
-.product-btn:disabled{background:#aaa;cursor:not-allowed}
-.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);justify-content:center;align-items:center}
+.produto h3{color:var(--verde);margin:10px 0 6px 0}
+.product-btn{background:var(--verde);color:#fff;border:none;padding:8px 12px;border-radius:8px;cursor:pointer;font-weight:700}
+.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);align-items:center;justify-content:center;z-index:1200}
 .modal.show{display:flex}
-.modal-card{background:#fff;padding:20px;border-radius:10px;width:90%;max-width:600px}
-table{width:100%;border-collapse:collapse}
-th,td{padding:10px;border:1px solid #ddd;text-align:center}
-th{background:var(--verde);color:#fff}
-.carrinho-btn{position:fixed;right:20px;bottom:20px;background:var(--verde);color:#fff;
-width:60px;height:60px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;cursor:pointer}
-.carrinho{position:fixed;right:-360px;top:0;width:340px;height:100%;background:#fff;transition:.3s;box-shadow:-4px 0 12px rgba(0,0,0,.2)}
-.carrinho.show{right:0}
+.modal-card{background:#fff;border-radius:10px;padding:18px;max-width:720px;width:96%;position:relative}
+.modal-card .close{position:absolute;right:12px;top:8px;font-size:20px;color:var(--verde);cursor:pointer;font-weight:700}
+.modal-header{display:flex;justify-content:space-between;align-items:flex-start}
+.modal-total{color:var(--verde);font-weight:700;margin-left:12px}
+.modal-table{width:100%;border-collapse:collapse;margin-top:12px}
+.modal-table th,.modal-table td{border:1px solid #e6e6e6;padding:10px;text-align:center}
+.modal-table th{background:var(--verde);color:#fff}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:26px;background:#111;color:#fff;padding:10px 14px;border-radius:10px;opacity:0;pointer-events:none;transition:opacity .18s}
+.toast.show{opacity:1;pointer-events:auto}
 </style>
 </head>
 
 <body>
-
 <header>
   <h1>Catálogo Bumerangue</h1>
+  <nav>
+    <a href="index.html">Início</a>
+    <a href="catalogo.html">Catálogo</a>
+    <a href="contato.html">Contato</a>
+  </nav>
 </header>
 
-<div class="catalogo" id="catalogo"></div>
+<main>
+  <!-- categorias gerais desativadas -->
+  <!-- <div class="cats" id="catsContainer"></div> -->
 
-<!-- MODAL -->
-<div class="modal" id="modal">
-  <div class="modal-card">
-    <h2 id="mNome"></h2>
-    <p id="mTotal"></p>
-    <table>
-      <thead><tr><th>Tamanho</th><th>Qtd</th><th>Ação</th></tr></thead>
-      <tbody id="mTabela"></tbody>
+  <div class="subcats" id="subcatsContainer"></div>
+
+  <div id="priceWrapper">
+    <table class="price">
+      <thead><tr><th>Tamanho</th><th>Preço</th></tr></thead>
+      <tbody>
+        <tr><td>280ml</td><td>R$ 30</td></tr>
+        <tr><td>500ml</td><td>R$ 55</td></tr>
+        <tr><td>750ml</td><td>R$ 80</td></tr>
+        <tr><td>1L</td><td>R$ 100</td></tr>
+      </tbody>
     </table>
-    <button onclick="fecharModal()">Fechar</button>
+  </div>
+
+  <div id="catalogo" class="catalogo"></div>
+</main>
+
+<div id="produtoModal" class="modal">
+  <div class="modal-card">
+    <span class="close" id="closeProduto">&times;</span>
+    <div class="modal-header">
+      <div>
+        <h2 id="modalNome"></h2>
+        <p id="modalDesc"></p>
+      </div>
+      <div class="modal-total" id="modalTotal"></div>
+    </div>
+    <table class="modal-table">
+      <thead><tr><th>Tamanho</th><th>Qtd</th><th>Ação</th></tr></thead>
+      <tbody id="modalTabela"></tbody>
+    </table>
   </div>
 </div>
 
-<!-- CARRINHO -->
-<div class="carrinho-btn" onclick="toggleCarrinho()">🛒</div>
-<div class="carrinho" id="carrinho">
-  <h3 style="padding:10px">Carrinho</h3>
-  <div id="itens"></div>
-  <button onclick="finalizarPedido()" style="margin:10px" class="product-btn">Finalizar Pedido</button>
-</div>
+<div id="toast" class="toast"></div>
 
 <script>
 const APPS_SCRIPT_URL = "https://script.google.com/macros/library/d/10rQQX5O0AFMHb9QgpXZd7MHr6BS7OlwR0fJB1KAds_qAptRc0VjbV8TU/5";
 const SHEET_ID = "19c63mlSybEumd2qgRciqTOzuXtCs_5eYEa5jXTylKyQ";
 
-let cliente = JSON.parse(localStorage.getItem("cliente"));
-if(!cliente){
-  cliente = {
-    nome: prompt("Seu nome:"),
-    whatsapp: prompt("WhatsApp:")
-  };
-  localStorage.setItem("cliente", JSON.stringify(cliente));
+/* 🔧 CORREÇÃO APLICADA AQUI */
+const SUBS_BY_CAT = {
+  "Bebidas": [
+    { label: "Releitura dos Clássicos", sheet: "Releitura dos Clássicos" },
+    { label: "Frutas", sheet: "Frutas" },
+    { label: "Sabores Brasileiros", sheet: "Sabores Brasileiros" }
+  ]
+
+  /*
+  ,"Doces": [{ label: "Doces", sheet: "Doces" }],
+  "Sabonetes": [{ label: "Sabonetes", sheet: "Sabonetes" }]
+  */
+};
+
+let produtosAtuais = [];
+
+const subcatsContainer = document.getElementById('subcatsContainer');
+const catalogo = document.getElementById('catalogo');
+const produtoModal = document.getElementById('produtoModal');
+const modalNome = document.getElementById('modalNome');
+const modalDesc = document.getElementById('modalDesc');
+const modalTabela = document.getElementById('modalTabela');
+const modalTotal = document.getElementById('modalTotal');
+const closeProduto = document.getElementById('closeProduto');
+const toastEl = document.getElementById('toast');
+
+function showToast(msg){
+  toastEl.textContent=msg;
+  toastEl.classList.add('show');
+  setTimeout(()=>toastEl.classList.remove('show'),2000);
 }
 
-let produtos = [];
-let carrinho = [];
+function renderSubcatsFor(cat){
+  subcatsContainer.innerHTML='';
+  SUBS_BY_CAT[cat].forEach((item,i)=>{
+    const b=document.createElement('button');
+    b.className='subcat-btn';
+    b.textContent=item.label;
+    b.onclick=()=>{
+      document.querySelectorAll('.subcat-btn').forEach(x=>x.classList.remove('active'));
+      b.classList.add('active');
+      carregarAba(item.sheet);
+    };
+    subcatsContainer.appendChild(b);
+    if(i===0) b.click();
+  });
+}
 
-async function carregar(){
-  const url = `https://opensheet.elk.sh/${SHEET_ID}/Releitura dos Clássicos`;
-  const r = await fetch(url);
-  const d = await r.json();
-  produtos = d.map(x=>({
-    nome:x.Nome,
-    imagem:x.Imagem,
-    total:Number(x.Total)
+async function carregarAba(sheet){
+  catalogo.innerHTML='⏳ Carregando...';
+  const url=`https://opensheet.elk.sh/${SHEET_ID}/${encodeURIComponent(sheet)}`;
+  const r=await fetch(url);
+  const dados=await r.json();
+  produtosAtuais=dados.map(d=>({
+    nome:d.nome,
+    descricao:d.descricao,
+    imagem:d.imagem,
+    total:Number(d.total),
+    sheet
   }));
-  render();
+  renderCatalogo();
 }
-carregar();
 
-function render(){
-  const c = document.getElementById("catalogo");
-  c.innerHTML="";
-  produtos.forEach((p,i)=>{
-    c.innerHTML+=`
-    <div class="produto">
-      <img src="${p.imagem}">
-      <h3>${p.nome}</h3>
-      <button class="product-btn" onclick="abrirModal(${i})">Ver detalhes</button>
-    </div>`;
+function renderCatalogo(){
+  catalogo.innerHTML='';
+  produtosAtuais.forEach((p,i)=>{
+    catalogo.innerHTML+=`
+      <div class="produto">
+        <img src="${p.imagem}">
+        <h3>${p.nome}</h3>
+        <p>${p.descricao||''}</p>
+        <button class="product-btn" onclick="openModal(${i})">Ver detalhes</button>
+      </div>`;
   });
 }
 
-function abrirModal(i){
-  const p=produtos[i];
-  document.getElementById("mNome").innerText=p.nome;
-  document.getElementById("mTotal").innerText="Total disponível: "+p.total+" L";
-  const t=document.getElementById("mTabela");
-  t.innerHTML="";
-  [["280ml",0.28],["500ml",0.5],["750ml",0.75],["1L",1]].forEach(v=>{
-    const disabled=p.total<v[1];
-    t.innerHTML+=`
-    <tr>
-      <td>${v[0]}</td>
-      <td><input type="number" id="q${v[0]}" value="1" min="1"></td>
-      <td><button ${disabled?"disabled":""} class="product-btn"
-      onclick="add(${i},'${v[0]}',${v[1]})">Adicionar</button></td>
-    </tr>`;
+function openModal(i){
+  const p=produtosAtuais[i];
+  modalNome.textContent=p.nome;
+  modalDesc.textContent=p.descricao;
+  modalTotal.textContent=`Total disponível: ${p.total} L`;
+  modalTabela.innerHTML='';
+  ["280ml","500ml","750ml","1L"].forEach(t=>{
+    const l=t==="1L"?1:parseInt(t)/1000;
+    modalTabela.innerHTML+=`
+      <tr>
+        <td>${t}</td>
+        <td><input id="q${t}" type="number" value="1" min="1"></td>
+        <td><button class="product-btn" onclick="baixar(${i},${l},'${t}')">Adicionar</button></td>
+      </tr>`;
   });
-  document.getElementById("modal").classList.add("show");
+  produtoModal.classList.add('show');
 }
 
-function fecharModal(){document.getElementById("modal").classList.remove("show");}
+closeProduto.onclick=()=>produtoModal.classList.remove('show');
 
-function add(i,tam,lit){
-  const q=Number(document.getElementById("q"+tam).value);
-  const litros=q*lit;
-  if(litros>produtos[i].total)return alert("Estoque insuficiente");
-  carrinho.push({produto:produtos[i].nome,tamanho:tam,qtd:q,litros});
-  produtos[i].total-=litros;
-  fecharModal();
-  render();
-}
+async function baixar(i,l,t){
+  const qtd=parseInt(document.getElementById('q'+t).value);
+  const litros=qtd*l;
+  const p=produtosAtuais[i];
 
-function toggleCarrinho(){
-  document.getElementById("carrinho").classList.toggle("show");
-}
-
-async function finalizarPedido(){
-  if(!carrinho.length)return alert("Carrinho vazio");
   await fetch(APPS_SCRIPT_URL,{
-    method:"POST",
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
     body:JSON.stringify({
-      action:"pedido",
-      cliente,
-      carrinho
+      action:'reduce',
+      sheet:p.sheet,
+      nome:p.nome,
+      reduzir_litros:litros
     })
   });
-  alert("Pedido enviado!");
-  carrinho=[];
-  toggleCarrinho();
+
+  showToast('Quantidade atualizada na planilha');
+  produtoModal.classList.remove('show');
+  carregarAba(p.sheet);
 }
+
+/* inicialização */
+renderSubcatsFor("Bebidas");
 </script>
 </body>
 </html>
